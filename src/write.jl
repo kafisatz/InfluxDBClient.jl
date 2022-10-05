@@ -1,3 +1,11 @@
+
+export write_dataframe 
+function write_dataframe(;settings,bucket,measurement,data,fields,timestamp,tags=String[],influx_precision::String = "ns",tzstr::String = "UTC",compress::Bool=false)
+    lp = lineprotocol(measurement,data,fields,timestamp,tags=tags,influx_precision=influx_precision,tzstr=tzstr,compress=compress)
+    rs = write_data(settings,bucket,lp,"ns")
+    return rs,lp
+end
+
 export write_data
 function write_data(isettings,bucket::String,payload::Union{String,Vector{UInt8}},influx_precision::String;compress::Bool=false)
     #= 

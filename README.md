@@ -79,6 +79,9 @@ lp_gzip_compressed = lineprotocol("my_meas",df,Symbol.(["temperature","humidity"
 rs = write_data(isettings,a_random_bucket_name,lp_gzip_compressed,"ns")
 @assert rs == 204
 
+#we also provide a wrapper function to directly write a DataFrame to the database
+rs,lp = write_dataframe(settings=isettings,bucket=a_random_bucket_name,measurement="xxmeasurment",data=df,fields=["humidity","temperature"],timestamp=:datetime,tags=String["sensor_id"],tzstr = "Europe/Berlin",compress=true);
+
 delete_bucket(isettings,a_random_bucket_name)
 
 ```

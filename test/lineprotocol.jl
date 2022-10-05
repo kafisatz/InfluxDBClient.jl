@@ -114,6 +114,34 @@
 
 
     end
+
+    ######################################################################
+    #wrapper for write data
+    ######################################################################
+    #write_data(settings=settings,bucket="bucketname",measurement="measurment",df=df,fields=fields,timestamp=timestamp;tags=String[],influx_precision="ns",tzstr = "UTC",compress::Bool=false)
+
+    some_dt = now() 
+    df = DataFrame(sensor_id = ["TLM0900","TLM0901","TLM0901"],other_tag=["m","m","x"] ,temperature = [73.1,55,22.0], humidity=[14.9,55.2,3], datetime = [some_dt,some_dt-Second(51),some_dt-Second(500)])
+    rs,lp = write_dataframe(settings=isettings,bucket=a_random_bucket_name,measurement="xxmeasurment",data=df,fields=["humidity","temperature"],timestamp=:datetime,tags=String["sensor_id"],influx_precision="ns",tzstr = "UTC",compress=false)
+    @test rs == 204
+
+    rs,lp = write_dataframe(settings=isettings,bucket=a_random_bucket_name,measurement="xxmeasurment",data=df,fields=["humidity","temperature"],timestamp=:datetime,influx_precision="ns",tzstr = "UTC",compress=false)
+    @test rs == 204
+
+    rs,lp = write_dataframe(settings=isettings,bucket=a_random_bucket_name,measurement="xxmeasurment",data=df,fields=["humidity","temperature"],timestamp=:datetime,tzstr = "UTC",compress=false)
+    @test rs == 204
+
+    rs,lp = write_dataframe(settings=isettings,bucket=a_random_bucket_name,measurement="xxmeasurment",data=df,fields=["humidity","temperature"],timestamp=:datetime,tzstr = "UTC",compress=true)
+    @test rs == 204
+
+    rs,lp = write_dataframe(settings=isettings,bucket=a_random_bucket_name,measurement="xxmeasurment",data=df,fields=["humidity","temperature"],timestamp=:datetime,tzstr = "Europe/Berlin",compress=false)
+    @test rs == 204
+
+    rs,lp = write_dataframe(settings=isettings,bucket=a_random_bucket_name,measurement="xxmeasurment",data=df,fields=["humidity","temperature"],timestamp=:datetime,compress=false)
+    @test rs == 204
+
+    @test_throws UndefKeywordError write_dataframe(settings=isettings,measurement="xxmeasurment",data=df,fields=["humidity","temperature"],timestamp=:datetime,compress=false)
+
    @warn("Todo - We may want to add a test for each note in the 'Manual', e.g. Line protocol does not support the newline character \n in tag or field values.")
    #e.g. 
    "https://github.com/influxdata/influxdb2-sample-data/blob/master/air-sensor-data/sample-sensor-info.csv"
