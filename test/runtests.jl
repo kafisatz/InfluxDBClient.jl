@@ -17,10 +17,21 @@ isettings = get_settings()
 @test isa(a_random_bucket_name,String)
 @test length(a_random_bucket_name) > 0
 
-#smoketest to see if DB is up
+#smoketest 1 to see if DB is up
+#a get request to """http://$(INFLUXDB_HOST)/metrics""" is another possibility to check if the server is up
+#"""http://$(INFLUXDB_HOST)/metrics"""
+r = HTTP.request("GET", """http://$(isettings.INFLUXDB_HOST)/metrics""",status_exception = false)
+@test r.status == 403
+
+#smoketest 2 to see if DB is up
 #https://docs.influxdata.com/influxdb/v2.4/write-data/developer-tools/api/
-bucket_names,json = try 
-    get_buckets(isettings); #1.7 ms btime, (influxdb host is on a different machine)
+bucket_names,json = try
+    try 
+        get_buckets(isettings); #1.7 ms btime, (influxdb host is on a different machine)
+    catch er 
+        @show er 
+        
+    end
 catch 
     "","";
 end;
