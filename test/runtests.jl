@@ -12,7 +12,7 @@ using StatsBase
 a_random_bucket_name = "test_InfluxDBClient.jl_asdfeafdfasefsIyxdFDYfadsfasdfa____l"
 
 isettings = get_settings()
-#ENV["INFLUXDB_USERNAME"] is this needed?
+#ENV["INFLUXDB_USER"] is this needed?
 
 @test isa(a_random_bucket_name,String)
 @test length(a_random_bucket_name) > 0
