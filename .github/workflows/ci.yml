@@ -31,7 +31,8 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v2
       - name: Setup InfluxDB
-        uses: influxdata/influxdb-action@v3
+        #uses: influxdata/influxdb-action@v3
+        uses: kafisatz/influxdb-action@v4
         with:
           influxdb_version: latest
           influxdb_org: ${{ secrets.INFLUXDB_ORG }}
