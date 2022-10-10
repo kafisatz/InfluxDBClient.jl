@@ -1,5 +1,5 @@
 #todo 
-@warn("query functions are in the works...")
+@warn("query functions are still very rudimentary")
 
 #query_flux(isettings,a_random_bucket_name,"my_meas",range=Dict("start"=>"-100d"))
 

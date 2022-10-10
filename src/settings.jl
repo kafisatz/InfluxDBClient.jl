@@ -1,59 +1,48 @@
 export get_settings
-function get_settings(;org::String="",token::String="",host::String="",user::String="",password::String="") #,bucket::String="")
+function get_settings(;org::String="",token::String="",host::String="",user::String="",password::String="",file::String="") #,bucket::String="")
 
     #maybe add an option to use something along ~/.influxdbconfig ? 
-
-    if length(org) == 0 
-        @assert haskey(ENV,"INFLUXDB_ORG")
-        org = ENV["INFLUXDB_ORG"]
+    if length(file)>0
+        settings_from_file = get_settings_from_file(;file="")
+        return settings_from_file
+    else 
+        settings_from_file = Dict{String,String}()
     end
-
-    if length(host) == 0 
-        @assert haskey(ENV,"INFLUXDB_HOST")
-        host = ENV["INFLUXDB_HOST"]
-    end
-
-    if length(user) == 0 
-        if haskey(ENV,"INFLUXDB_USER")
-            user = ENV["INFLUXDB_USER"]
-        end        
-    end
-
-    if length(password) == 0 
-        if haskey(ENV,"INFLUXDB_PASSWORD")
-            password = ENV["INFLUXDB_PASSWORD"]
-        end        
-    end
-
-    if length(token) == 0 
-        if haskey(ENV,"INFLUXDB_TOKEN")
-            token = ENV["INFLUXDB_TOKEN"]
-        else
-            #try to get token via API
-            if (length(user) == 0) || (length(password) == 0 )
-                @warn("No token was provided and either user or password is missing.")
-            end
+    
+    envsettings = Dict{String,String}()
+    for k in ["INFLUXDB_PASSWORD","INFLUXDB_USER","INFLUXDB_HOST","INFLUXDB_TOKEN","INFLUXDB_ORG"]
+        if haskey(ENV,k)
+         envsettings[k] = ENV[k]
         end
     end
 
-    #if length(bucket) == 0
-    #    if haskey(ENV,"INFLUXDB_BUCKET")
-    #        bucket = ENV["INFLUXDB_BUCKET"]
-    #    end
-    #end
+    #kwargs should 'overwrite' environment variables
+    kwsettings = envsettings 
+    if length(org) > 0; kwsettings["INFLUXDB_ORG"] = org; end;
+    if length(host) > 0; kwsettings["INFLUXDB_HOST"] = host; end;
+    if length(token) > 0 ; kwsettings["INFLUXDB_TOKEN"] = token; end;
+    if length(user) > 0 ; kwsettings["INFLUXDB_USER"] = user; end;
+    if length(password) > 0 ; kwsettings["INFLUXDB_PASSWORD"] = password; end;
 
-    isettings=(INFLUXDB_HOST=host,INFLUXDB_ORG=org,INFLUXDB_TOKEN=token,INFLUXDB_USER=user,INFLUXDB_PASSWORD=password)
+    #isettings=Dict{String,String}("INFLUXDB_HOST"=>host,"INFLUXDB_ORG"=>org,"INFLUXDB_TOKEN"=>token,"INFLUXDB_USER"=>user,"INFLUXDB_PASSWORD"=>password)
+
+    #may want to inform/warn the user if there is overlap in the dicts... ? 
+    #i guess the kw dict should have precedence
+    isettings = merge(settings_from_file,envsettings,kwsettings)
+
+    #isettings=Dict{String,String}("INFLUXDB_HOST"=>host,"INFLUXDB_ORG"=>org,"INFLUXDB_TOKEN"=>token,"INFLUXDB_USER"=>user,"INFLUXDB_PASSWORD"=>password)
 
     return isettings
 end
 
 export get_settings_from_file
-function get_settings_from_file(;file="") 
+function get_settings_from_file(;file="")
     #=
     
     fi = raw"
     =#
-@info("we should probably split only once per line at the first space! (if a value contains a space)")
+
+    isettings = Dict{String,String}()
 
     if length(file) <= 0 
         file = joinpath(ENV["USERPROFILE"],".influxdb","config")
@@ -64,12 +53,14 @@ function get_settings_from_file(;file="")
     txt = readlines(file)
     txt2 = split.(txt," ")
     for i=1:length(txt)
-        @assert size(txt2[i],1) == 2
-        k = txt2[i,1]
-        v = txt2[i,1]        
+        @assert size(txt2[i],1) >= 2
+        k = txt2[i][1]
+        l = length(k)
+        v = txt[i][l+2:end]
         k = lstrip(rstrip(k))
         v = lstrip(rstrip(v))
+        isettings[k] = v 
     end
 
-    return nothing 
+    return isettings 
 end 

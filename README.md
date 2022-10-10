@@ -17,7 +17,8 @@ InfluxDBClient.jl
 * You may want to consider the functions in runtests.jl to get an idea of the other functions and their arguments.
 
 ## Configuration
-Ideally you define several envirnoment variables to configure the settings, see function `get_settings` 
+You can either define environment variables to configure the settings, see function `get_settings`.
+Or you can provide a space delimited file, see config_example.txt for the syntax (space delimited, one entry per row)
 * ENV["INFLUXDB_ORG"] the organization
 * ENV["INFLUXDB_TOKEN"] the token to access the InfluxDB
 * ENV["INFLUXDB_HOST"] should include the port, e.g. "10.14.15.10:8086"

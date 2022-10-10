@@ -1,0 +1,5 @@
+INFLUXDB_HOST 10.14.15.10:8086
+INFLUXDB_ORG bk
+INFLUXDB_TOKEN 5xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxoA==
+INFLUXDB_USER bernhard
+INFLUXDB_PASSWORD aaaaaaaaaaaaaaaaaaaa9

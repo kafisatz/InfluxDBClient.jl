@@ -12,6 +12,9 @@ using StatsBase
 a_random_bucket_name = "test_InfluxDBClient.jl_asdfeafdfasefsIyxdFDYfadsfasdfa____l"
 
 isettings = get_settings()
+if iszero(length(isettings))
+    isettings = get_settings_from_file()
+end
 #ENV["INFLUXDB_USER"] is this needed?
 
 @test isa(a_random_bucket_name,String)
@@ -19,7 +22,7 @@ isettings = get_settings()
 
 #smoketest 1 to see if DB is up
 #a get request to """http://$(INFLUXDB_HOST)/metrics""" is another possibility to check if the server is up
-r = HTTP.request("GET", """http://$(isettings.INFLUXDB_HOST)/metrics""",status_exception = false)
+r = HTTP.request("GET", """http://$(isettings["INFLUXDB_HOST"])/metrics""",status_exception = false)
 @test in(r.status,[200,403])
 #maybe status is 200 when metrics are ENABLED and status is 403 when metrics are DISABLED
 
