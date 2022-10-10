@@ -32,7 +32,7 @@ function query_flux(isettings,bucket,measurement;range=Dict{String,Any}(),fields
     if length(rngstr) > 0 
         q = string(q,"""|> """,rngstr)
     end
-    println(q)
+    #println(q)
     # |> range(start: -100d) """
     #q = """from(bucket: "$(bucket)")"""
     #TODO, implement range for function query_flux
