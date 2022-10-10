@@ -30,17 +30,18 @@ jobs:
     steps:    
       - name: Check out repo
         uses: actions/checkout@v2
-      - name: Setup InfluxDB
-        #uses: influxdata/influxdb-action@v3
-        uses: kafisatz/influxdb-action@v4
+
+
+#https://docs.github.com/en/actions/creating-actions/creating-a-docker-container-action#example-using-a-private-action
+      - name: Set up InfluxDB via Docker 
+        uses: ./ # Uses an action in the root directory
+        id: hello
         with:
-          influxdb_version: latest
-          influxdb_org: ${{ secrets.INFLUXDB_ORG }}
-          influxdb_user: ${{ secrets.INFLUXDB_USER }}
-          influxdb_password: ${{ secrets.INFLUXDB_PASSWORD }}
-          influxdb_bucket: dummy_bucket      
-          influxdb_token: ${{ secrets.INFLUXDB_TOKEN }}
-      - uses: influxdata/influxdb-action@v3
+          who-to-greet: 'Mona the Octocat'
+      # Use the output from the `hello` step
+      #- name: Get the output time
+      #  run: echo "The time was ${{ steps.hello.outputs.time }}"
+
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
