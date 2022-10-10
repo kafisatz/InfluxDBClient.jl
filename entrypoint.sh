@@ -360,6 +360,9 @@ function main () {
     fi
 
     if ! ${run_influxd}; then
+      echo "test 991"
+      echo "${@}"
+      echo "test 993"
       exec "${@}"
     fi
 
