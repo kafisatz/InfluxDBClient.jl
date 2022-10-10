@@ -10,7 +10,20 @@ function tmp(isettings,bucket,measurement;fields=Dict{String,Any}(),tags=Dict{St
         measurement = "my_meas"
     =#
 
-#from(bucket: "example-bucket")
+    @unpack INFLUXDB_HOST,INFLUXDB_TOKEN,INFLUXDB_ORG = isettings
+
+    q = """from(bucket: a_random_bucket_name) |> range(start: -100d) """
+
+    hdrs = Dict("Authorization" => "Token $(INFLUXDB_TOKEN)", "Accept"=>"application/json","Content-Type"=>"application/json; charset=utf-8")
+    hdrs["Content-Encoding"] = "identity"
+    
+    url = """http://$(INFLUXDB_HOST)/api/v2/query?org=$INFLUXDB_ORG&bucket=$bucket&precision=$influx_precision"""
+    bdy = q
+
+    r = HTTP.request("POST", url, hdrs, body = bdy)
+
+
+#from(bucket: $(bucket))
 #    |> range(start: -1h)
 #    |> filter(fn: (r) => r._measurement == "example-measurement" and r.tag == "example-tag")
 #    |> filter(fn: (r) => r._field == "example-field")
