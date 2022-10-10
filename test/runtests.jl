@@ -41,6 +41,7 @@ catch
     "","";
 end;
 @test length(bucket_names) > 0
+@show bucket_names
 
 if !(length(bucket_names) > 0 )
     @warn("InfluxDB is not reachable. No tests will be performed.")
