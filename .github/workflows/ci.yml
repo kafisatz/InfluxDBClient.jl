@@ -47,6 +47,8 @@ jobs:
 
         uses: influxdata/influxdb-action@v3
         with:
+          INFLUXDB_START: true
+          influxdb_start: true
           influxdb_version: latest
           influxdb_org: influxdata
           influxdb_user: ci_user
