@@ -80,6 +80,8 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
+#CMD is the command the container executes by default when you launch the built image. A Dockerfile will only use the final CMD defined. 
+#The CMD can be overridden when starting a container with docker run $image $other_command.
 CMD ["influxd"]
 
 EXPOSE 8086

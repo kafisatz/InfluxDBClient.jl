@@ -42,6 +42,7 @@ jobs:
           DOCKER_INFLUXDB_INIT_PASSWORD: ${{ secrets.INFLUXDB_PASSWORD }}
           DOCKER_INFLUXDB_INIT_BUCKET: some_bucket
           DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${{ secrets.INFLUXDB_TOKEN }}
+          INFLUXD_CONFIG_PATH: /etc/defaults/influxdb2/config.yml
         id: hello
         #with:
         #  who-to-greet: 'Mona the Octocat'
