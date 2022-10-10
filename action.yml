@@ -13,5 +13,6 @@ description: 'Greet someone and record the time'
 runs:
   using: 'docker'
   image: 'Dockerfile'
-  args:
-    - ${{ inputs.who-to-greet }}
+  args:    
+    - run 
+    #influxd run
