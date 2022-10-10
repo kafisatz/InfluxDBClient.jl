@@ -25,30 +25,11 @@
     lp_want = "my_meas temperature=73.9,humidity=14.9 1664553573033000000\nmy_meas temperature=55.1,humidity=55.2 1664553522033000000\nmy_meas temperature=22.9,humidity=3.0 1664553073033000000"
     @test lp == lp_want
     @test 204 == write_data(isettings,a_random_bucket_name,lp,"ns")
-
-    ########################################
-    #microseconds
-    ########################################
-    lp = lineprotocol("my_meas",df,["temperature","humidity"], :datetime,influx_precision = "us")
-    @test 204 == write_data(isettings,a_random_bucket_name,lp,"us")
-
-    #we cannot 'check' the timestamp precision, as everything is stored as nanoseconds
-    #(but data is smaller when sent as seconds (string encoded/compressed))
-    #https://docs.influxdata.com/influxdb/v1.8/troubleshooting/frequently-asked-questions/#can-i-identify-write-precision-from-returned-timestamps
-    #InfluxDB stores all timestamps as nanosecond values, regardless of the write precision supplied. It is important to note that when returning query results, the database silently drops trailing zeros from timestamps which obscures the initial write precision.
-    #In the example below, the tags precision_supplied and timestamp_supplied show the time precision and timestamp that the user provided at the write. Because InfluxDB silently drops trailing zeros on returned timestamps, the write precision is not recognizable in the returned timestamps.
-
-    ########################################
-    #seconds
-    ########################################
-    @test_throws ArgumentError lp = lineprotocol("my_meas",df,["temperature","humidity"], :datetime,influx_precision = "ss")
-    
-    lp = lineprotocol("my_meas",df,["temperature","humidity"], :datetime,influx_precision = "s")
-    @test 204 == write_data(isettings,a_random_bucket_name,lp,"s")
-
+   
     #with Symbol
     @test lp == lineprotocol("my_meas",df,Symbol.(["temperature","humidity"]), :datetime)
     @test 204 == write_data(isettings,a_random_bucket_name,lp,"ns")
+
     #datetime col as string
     @test lp == lineprotocol("my_meas",df,Symbol.(["temperature","humidity"]), "datetime")
     @test 204 == write_data(isettings,a_random_bucket_name,lp,"ns")
@@ -178,6 +159,33 @@
 
    #Whitespace
    #Whitespace in line protocol determines how InfluxDB interprets the data point. The first unescaped space delimits the measurement and the tag set from the field set. The second unescaped space delimits the field set from the timestamp.
+
+    delete_bucket(isettings,a_random_bucket_name);
+
+    create_bucket(isettings,a_random_bucket_name);
+
+    
+    df = DataFrame(sensor_id = ["TLM0900","TLM0901","TLM0901"],other_tag=["m","m","x"] ,temperature = [73.9,55.1,22.9], humidity=[14.9,55.2,3], datetime = [some_dt,some_dt-Second(51),some_dt-Second(500)])
+
+    ########################################
+    #microseconds
+    ########################################
+    lp = lineprotocol("my_meas",df,["temperature","humidity"], :datetime,influx_precision = "us")
+    @test 204 == write_data(isettings,a_random_bucket_name,lp,"us")
+
+    #we cannot 'check' the timestamp precision, as everything is stored as nanoseconds
+    #(but data is smaller when sent as seconds (string encoded/compressed))
+    #https://docs.influxdata.com/influxdb/v1.8/troubleshooting/frequently-asked-questions/#can-i-identify-write-precision-from-returned-timestamps
+    #InfluxDB stores all timestamps as nanosecond values, regardless of the write precision supplied. It is important to note that when returning query results, the database silently drops trailing zeros from timestamps which obscures the initial write precision.
+    #In the example below, the tags precision_supplied and timestamp_supplied show the time precision and timestamp that the user provided at the write. Because InfluxDB silently drops trailing zeros on returned timestamps, the write precision is not recognizable in the returned timestamps.
+
+    ########################################
+    #seconds
+    ########################################
+    @test_throws ArgumentError lp = lineprotocol("my_meas",df,["temperature","humidity"], :datetime,influx_precision = "ss")
+    
+    lp = lineprotocol("my_meas",df,["temperature","humidity"], :datetime,influx_precision = "s")
+    @test 204 == write_data(isettings,a_random_bucket_name,lp,"s")
 
     delete_bucket(isettings,a_random_bucket_name);
 end
