@@ -84,6 +84,8 @@ CMD ["influxd"]
 
 EXPOSE 8086
 
+#invoke automated setup
+ENV DOCKER_INFLUXDB_INIT_MODE setup
 ENV INFLUX_CONFIGS_PATH /etc/influxdb2/influx-configs
 ENV INFLUXD_INIT_PORT 9999
 ENV INFLUXD_INIT_PING_ATTEMPTS 600
