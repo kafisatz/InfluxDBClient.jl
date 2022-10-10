@@ -1,11 +1,33 @@
 #todo 
 @info("query functions are in the works...")
+
+function tmp(isettings,bucket,measurement;fields=Dict{String,Any}(),tags=Dict{String,Any}())
+    #=
+        df = DataFrame(_sensor_id = ["TLM0900","TLM0901","TLM0901"],other_tag=["m","m","x"] ,temperature = [73.1,55,22.0], humidity=[14.9,55.2,3], datetime = [some_dt,some_dt-Second(51),some_dt-Second(500)])
+        lp = lineprotocol("my_meas",df,["temperature","humidity"], :datetime,compress = gzip_compression_is_enabled)
+
+        bucket = "a_random_bucket_name"
+        measurement = "my_meas"
+    =#
+
+#from(bucket: "example-bucket")
+#    |> range(start: -1h)
+#    |> filter(fn: (r) => r._measurement == "example-measurement" and r.tag == "example-tag")
+#    |> filter(fn: (r) => r._field == "example-field")
+
+
+    return nothing
+end 
+
+
 #= 
 need to support both
 a) https://docs.influxdata.com/influxdb/v2.4/query-data/flux/
 b) https://docs.influxdata.com/influxdb/v2.4/query-data/influxql/
 
 a) 
+
+a_random_bucket_name
 
 from(bucket: "example-bucket")
     |> range(start: -1h)
