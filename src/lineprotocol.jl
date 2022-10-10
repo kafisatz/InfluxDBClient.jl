@@ -12,7 +12,7 @@ df = DataFrame(sensor_id = ["TLM0900","TLM0901","TLM0901"], temperature = [73.9,
 lp = lineprotocol("measurement_name",df)
 ```
 """
-function lineprotocol(measurement::String,df::DataFrame,fields0::Union{Vector{String},Vector{Symbol}},timestamp0;tags=String[],influx_precision="ns",tzstr = "UTC",compress::Bool=false)
+function lineprotocol(measurement::String,df::AbstractDataFrame,fields0::Union{Vector{String},Vector{Symbol}},timestamp0;tags=String[],influx_precision="ns",tzstr = "UTC",compress::Bool=false)
     #=
         df = DataFrame(sensor_id = ["TLM0900","TLM0901","TLM0901"],other_tag=["m","m","x"] ,temperature = [73.9,55.1,22.9], humidity=[14.9,55.2,3], datetime = [now(),now()-Second(51),now()-Second(50)])
         measurement = "my_measurement"

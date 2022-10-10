@@ -1,8 +1,12 @@
 
 export write_dataframe 
-function write_dataframe(;settings,bucket,measurement,data,fields,timestamp,tags=String[],influx_precision::String = "ns",tzstr::String = "UTC",compress::Bool=false)
-    lp = lineprotocol(measurement,data,fields,timestamp,tags=tags,influx_precision=influx_precision,tzstr=tzstr,compress=compress)
-    rs = write_data(settings,bucket,lp,"ns")
+function write_dataframe(;settings,bucket,measurement,data,fields,timestamp,tags=String[],batchsize::Int = 0,influx_precision::String = "ns",tzstr::String = "UTC",compress::Bool=false)
+    if batchsize <= 0 
+        lp = lineprotocol(measurement,data,fields,timestamp,tags=tags,influx_precision=influx_precision,tzstr=tzstr,compress=compress)
+        rs = write_data(settings,bucket,lp,"ns")
+    else 
+        
+    end
     return rs,lp
 end
 

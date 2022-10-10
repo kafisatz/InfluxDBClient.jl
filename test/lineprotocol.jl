@@ -26,6 +26,11 @@
     @test lp == lp_want
     @test 204 == write_data(isettings,a_random_bucket_name,lp,"ns")
    
+    #view of df
+    lp = lineprotocol("my_meas",view(df,1:2,:),["temperature","humidity"], :datetime)
+    @test lp == "my_meas temperature=73.9,humidity=14.9 1664553573033000000\nmy_meas temperature=55.1,humidity=55.2 1664553522033000000"
+    @test 204 == write_data(isettings,a_random_bucket_name,lp,"ns")
+   
     #with Symbol
     @test lp == lineprotocol("my_meas",df,Symbol.(["temperature","humidity"]), :datetime)
     @test 204 == write_data(isettings,a_random_bucket_name,lp,"ns")
