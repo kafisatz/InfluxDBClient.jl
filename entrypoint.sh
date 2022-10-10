@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -eo pipefail
+set -euf -o pipefail
 
 echo "Running entrypoint.sh..."
 
