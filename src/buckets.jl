@@ -18,7 +18,7 @@ function create_bucket(isettings,bucket,content::String="")
     end
 
     organization_names,jsonORG = get_organizations(isettings)
-    ORG_ID = get_orgid(jsonORG,INFLUXDB_ORG)
+    ORG_ID = get_orgid(jsonORG,INFLUXDB_ORG)    
 
     if length(content) == 0
         content = """{"name": "$bucket", "orgID": "$ORG_ID"}"""

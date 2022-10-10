@@ -11,6 +11,9 @@ payload = """myMeasurement,tag1=value1,tag2=value2 fieldKey="fieldValue" 1556813
 rs = write_data(isettings,a_random_bucket_name,payload,"ns")
 @test rs == 204
 
+#nsx, it's a car, not a precision :) 
+@test_throws ArgumentError write_data(isettings,a_random_bucket_name,payload,"nsx")
+
 for gzip_compression_is_enabled in [false,true]
     if gzip_compression_is_enabled
         @info("Testing write_data WITH gzip compression...")

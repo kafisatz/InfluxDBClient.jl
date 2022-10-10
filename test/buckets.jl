@@ -25,4 +25,14 @@
 
     @test_throws ArgumentError delete_bucket(isettings,a_random_bucket_name)
 
+
+    #errors
+    organization_names,jsonORG = get_organizations(isettings)
+    ORG_ID = get_orgid(jsonORG,INFLUXDB_ORG)
+    @test_throws ArgumentError get_orgid(jsonORG,"mi___ha")
+
+    buckets,json = get_buckets(isettings;limit=100,offset=0);
+    @test_throws ArgumentError BUCKET_ID = get_bucketid(json,a_random_bucket_name)
+    @test_throws ArgumentError BUCKET_ID = get_bucketid(json,"mi____ha")
+
 end
