@@ -192,7 +192,6 @@
     lp = lineprotocol("my_meas",df,["temperature","humidity"], :datetime,influx_precision = "s")
     @test 204 == write_data(isettings,a_random_bucket_name,lp,"s")
 
-
     #Int32 and UInt32 etc types 
     for tt in [UInt128,UInt64,UInt32,UInt16,UInt8,Int128,Int64,Int32,Int16,Int8]
         df = DataFrame(sensor_id = ["TLM0900","TLM0901","TLM0901"],other_tag=["m","m","x"] ,temperature = [73.9,55.1,22.9], humidity=convert(Vector{tt},[14,52,3]), datetime = [some_dt,some_dt-Second(51),some_dt-Second(500)])    
