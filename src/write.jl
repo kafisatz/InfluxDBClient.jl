@@ -20,9 +20,12 @@ function write_dataframe(;settings,bucket,measurement,data,fields,timestamp,tags
             lp = lineprotocol(measurement,vdata,fields,timestamp,tags=tags,influx_precision=influx_precision,tzstr=tzstr,compress=compress)
             rs = write_data(settings,bucket,lp,"ns")
             startpos = endpos + 1            
-        end
-
+        end        
     end
+    
+    #@show batchsize 
+    #@show length(lp)
+    #note this is the RS,LP of the LAST batch, if processing in batches was enabled
     return rs,lp
 end
 
