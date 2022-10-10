@@ -32,9 +32,6 @@ function get_settings(;org::String="",token::String="",host::String="",user::Str
             #try to get token via API
             if (length(user) == 0) || (length(password) == 0 )
                 @warn("No token was provided and either user or password is missing.")
-            else 
-                #try to get token via API
-                @info("Fetching token via API (using user and password)...")                
             end
         end
     end
