@@ -34,16 +34,25 @@ jobs:
 
 #https://docs.github.com/en/actions/creating-actions/creating-a-docker-container-action#example-using-a-private-action
       - name: Set up InfluxDB via Docker 
-        uses: ./ # Uses an action in the root directory
-        env:
-          DOCKER_INFLUXDB_INIT_MODE: setup
-          DOCKER_INFLUXDB_INIT_ORG: ${{ secrets.INFLUXDB_ORG }}
-          DOCKER_INFLUXDB_INIT_USERNAME: ${{ secrets.INFLUXDB_USER }}
-          DOCKER_INFLUXDB_INIT_PASSWORD: ${{ secrets.INFLUXDB_PASSWORD }}
-          DOCKER_INFLUXDB_INIT_BUCKET: some_bucket
-          DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${{ secrets.INFLUXDB_TOKEN }}
-          INFLUXD_CONFIG_PATH: /etc/defaults/influxdb2/config.yml
-        id: hello
+        #uses: ./ # Uses an action in the root directory
+        #env:
+          #DOCKER_INFLUXDB_INIT_MODE: setup
+          #DOCKER_INFLUXDB_INIT_ORG: ${{ secrets.INFLUXDB_ORG }}
+          #DOCKER_INFLUXDB_INIT_USERNAME: ${{ secrets.INFLUXDB_USER }}
+          #DOCKER_INFLUXDB_INIT_PASSWORD: ${{ secrets.INFLUXDB_PASSWORD }}
+          #DOCKER_INFLUXDB_INIT_BUCKET: some_bucket
+          #DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${{ secrets.INFLUXDB_TOKEN }}
+          #INFLUXD_CONFIG_PATH: /etc/defaults/influxdb2/config.yml
+        #id: hello
+
+        uses: influxdata/influxdb-action@v3
+        with:
+          influxdb_version: latest
+          influxdb_org: influxdata
+          influxdb_user: ci_user
+          influxdb_password: password
+          influxdb_bucket: dummy
+
         #with:
         #  who-to-greet: 'Mona the Octocat'
         # arguments for entrypoint.sh
