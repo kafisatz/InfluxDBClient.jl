@@ -10,7 +10,7 @@ function write_dataframe(;settings,bucket,measurement,data,fields,timestamp,tags
         sz = size(data,1)
         endpos = 1 
         startpos = 1
-        nbatches = div(sz,batchsize)
+        nbatches = trunc(Int,ceil(sz/batchsize))
         while endpos < sz
             i += 1
             #loop over batches
