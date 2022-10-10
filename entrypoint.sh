@@ -362,7 +362,7 @@ function main () {
     if ! ${run_influxd}; then
       echo "test 991"
       echo "test $#"
-      if [ -z "${@}" ];
+      if [ -z "${@}" ]; then
         exec "${@}"
       fi
       echo "test 993"
