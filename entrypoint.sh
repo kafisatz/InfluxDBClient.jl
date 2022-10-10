@@ -360,12 +360,10 @@ function main () {
     fi
 
     if ! ${run_influxd}; then
-      echo "test 991"
-      echo "test $#"
-      [ "$#" -ne 1 ]; then
+      echo "number of arguments is: $#"
+      if [ "$#" -ne 1 ]; then
         exec "${@}"
       fi
-      echo "test 993"
     fi
 
     if [ "$1" = run ]; then
