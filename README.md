@@ -2,7 +2,7 @@ InfluxDBClient.jl
 =================
 
 [![CI Testing](https://github.com/kafisatz/InfluxDBClient.jl/workflows/CI/badge.svg)](https://github.com/kafisatz/InfluxDBClient.jl/actions?query=workflow%3ACI+branch%3Amain)
-
+[![Coverage Status](http://codecov.io/github/kafisatz/InfluxDBClient.jl/coverage.svg?branch=main)](http://codecov.io/github/kafisatz/InfluxDBClient.jl?branch=main)
 
 **WORK IN PROGRESS**
 
