@@ -192,6 +192,13 @@
     lp = lineprotocol("my_meas",df,["temperature","humidity"], :datetime,influx_precision = "s")
     @test 204 == write_data(isettings,a_random_bucket_name,lp,"s")
 
+
+    #Int32 and UInt32 etc types 
+    df = DataFrame(sensor_id = ["TLM0900","TLM0901","TLM0901"],other_tag=["m","m","x"] ,temperature = [73.9,55.1,22.9], humidity=[149,552,3], datetime = [some_dt,some_dt-Second(51),some_dt-Second(500)])
+    
+    lp = lineprotocol("my_meas",df[1:1,:],["temperature","humidity"], :datetime)
+    
+
     delete_bucket(isettings,a_random_bucket_name);
 end
 
