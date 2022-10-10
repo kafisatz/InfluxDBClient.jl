@@ -1,4 +1,8 @@
-# InfluxDBClient
+InfluxDBClient.jl
+=================
+
+[![CI Testing](https://github.com/kafisatz/InfluxDBClient.jl/workflows/CI/badge.svg)](https://github.com/kafisatz/InfluxDBClient.jl/actions?query=workflow%3ACI+branch%3Amain)
+
 
 **WORK IN PROGRESS**
 
