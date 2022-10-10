@@ -1,6 +1,9 @@
 #todo 
-@info("query functions are in the works...")
+@warn("query functions are in the works...")
 
+#query_flux(isettings,a_random_bucket_name,"my_meas",range=Dict("start"=>"-100d"))
+
+export query_flux 
 function query_flux(isettings,bucket,measurement;range=Dict{String,Any}(),fields=Dict{String,Any}(),tags=Dict{String,Any}())
     #=
         df = DataFrame(_sensor_id = ["TLM0900","TLM0901","TLM0901"],other_tag=["m","m","x"] ,temperature = [73.1,55,22.0], humidity=[14.9,55.2,3], datetime = [some_dt,some_dt-Second(51),some_dt-Second(500)])
@@ -11,8 +14,30 @@ function query_flux(isettings,bucket,measurement;range=Dict{String,Any}(),fields
     =#
 
     @unpack INFLUXDB_HOST,INFLUXDB_TOKEN,INFLUXDB_ORG = isettings
-
-    q = """from(bucket: "$(bucket)") |> range(start: -100d) """
+    
+    #@assert length(range) > 0 #I think this may be necessary for any query...
+    rngstr = ""
+    if length(range) > 0 
+        count = 0
+        for (k,v) in range
+            if count > 0 
+                rngstr = string(rngstr," and ")
+            end
+            rngstr = string(k,": ",v)       
+        end
+        rngstr = string("range(",rngstr,")")
+    end
+    
+    q = """from(bucket: "$(bucket)")"""
+    if length(rngstr) > 0 
+        q = string(q,"""|> """,rngstr)
+    end
+    println(q)
+    # |> range(start: -100d) """
+    #q = """from(bucket: "$(bucket)")"""
+    #TODO, implement range for function query_flux
+    #TODO, implement tags for function query_flux
+    #TODO, implement fields for function query_flux
 
     hdrs = Dict("Authorization" => "Token $(INFLUXDB_TOKEN)", "Accept"=>"application/json","Content-Type"=>"application/vnd.flux; charset=utf-8")
     hdrs["Content-Encoding"] = "identity"
@@ -21,15 +46,17 @@ function query_flux(isettings,bucket,measurement;range=Dict{String,Any}(),fields
     bdy = q
 
     r = HTTP.request("POST", url, hdrs, body = bdy)
+    if r.status != 200 
+        @warn("Unexpected Status:")
+        @show r.status
+    end
 
+    return r.body
 
 #from(bucket: $(bucket))
 #    |> range(start: -1h)
 #    |> filter(fn: (r) => r._measurement == "example-measurement" and r.tag == "example-tag")
 #    |> filter(fn: (r) => r._field == "example-field")
-
-
-    return nothing
 end 
 
 
