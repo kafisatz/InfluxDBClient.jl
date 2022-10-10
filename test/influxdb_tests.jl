@@ -1,5 +1,6 @@
 
 
+include("functions.jl")
 include("buckets.jl")
 include("write.jl")
 include("lineprotocol.jl")

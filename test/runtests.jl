@@ -1,11 +1,7 @@
 using InfluxDBClient
-using Test,UnPack
-using DataFrames
-using Dates
-import JSON3, HTTP, CodecZlib
-import TimeZones
-using BenchmarkTools
-using StatsBase
+using Test, UnPack, DataFrames, Dates
+import JSON3, HTTP, CodecZlib, TimeZones, Random, CSV
+using BenchmarkTools, StatsBase
 
 #bucket name for testing puroses 
 #Note: this bucket will be created and deleted several times. Hopefully you don't have this bucket name with real data :) 

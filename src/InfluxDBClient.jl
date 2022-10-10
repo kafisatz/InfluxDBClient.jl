@@ -7,6 +7,8 @@ using UnPack
 using DataFrames
 using Dates
 import HTTP
+import Random
+import CSV
 
 export PRECISIONS
 export PRECISION_DICT

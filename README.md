@@ -87,6 +87,9 @@ rs = write_data(isettings,a_random_bucket_name,lp_gzip_compressed,"ns")
 #we also provide a wrapper function to directly write a DataFrame to the database
 rs,lp = write_dataframe(settings=isettings,bucket=a_random_bucket_name,measurement="xxmeasurment",data=df,fields=["humidity","temperature"],timestamp=:datetime,tags=String["sensor_id"],tzstr = "Europe/Berlin",compress=true);
 
+#querying 
+#consider the function `query_flux` to query data, see runtests.jl for example calls
+
 delete_bucket(isettings,a_random_bucket_name)
 
 ```

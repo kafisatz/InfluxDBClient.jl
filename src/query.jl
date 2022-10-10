@@ -1,10 +1,40 @@
 #todo 
-@warn("query functions are still very rudimentary")
+#query_flux_raw(isettings,a_random_bucket_name,"my_meas",range=Dict("start"=>"-100d"))
 
-#query_flux(isettings,a_random_bucket_name,"my_meas",range=Dict("start"=>"-100d"))
+export query_flux
+function query_flux(isettings,bucket,measurement;tzstr = "UTC",range=Dict{String,Any}(),fields::Vector{String}=String[],tags=Dict{String,Any}(),aggregate::String="")
+    #tzstr is used to convert the datetime in Range to UTC
+    tz = Dates.TimeZone(tzstr) #is of type TimeZone
+    shift_datetime_to_utc(x) = DateTime(TimeZones.astimezone(TimeZones.ZonedDateTime(x, tz), utc_tz))
 
-export query_flux 
-function query_flux(isettings,bucket,measurement;range=Dict{String,Any}(),fields=Dict{String,Any}(),tags=Dict{String,Any}())
+    #limitation / todo / tbd 
+    #if range=-100d we DO NOT perform any modification of it!
+
+    rangeUTC = Dict{String,Any}()
+    for (k,v) in range
+        if isa(v,DateTime)
+            @show v
+            @show k
+            v_utc = shift_datetime_to_utc(v)
+            datetime_str = string(v_utc,"+00:00")
+            rangeUTC[k] = datetime_str
+        else 
+            rangeUTC[k] = v
+        end
+    end
+
+    #perform query
+    bdy = query_flux_raw(isettings,bucket,measurement,range=rangeUTC,fields=fields,tags=tags,aggregate=aggregate)
+    
+    #interpret as DataFrame 
+    df = CSV.File(bdy) |> DataFrame
+    DataFrames.select!(df,Not(:Column1)) #unclear what this could/would be (let us drop it for now)
+    
+    return df 
+end
+
+export query_flux_raw 
+function query_flux_raw(isettings,bucket,measurement;range=Dict{String,Any}(),fields::Vector{String}=String[],tags=Dict{String,Any}(),aggregate::String="")
     #=
         df = DataFrame(_sensor_id = ["TLM0900","TLM0901","TLM0901"],other_tag=["m","m","x"] ,temperature = [73.1,55,22.0], humidity=[14.9,55.2,3], datetime = [some_dt,some_dt-Second(51),some_dt-Second(500)])
         lp = lineprotocol("my_meas",df,["temperature","humidity"], :datetime,compress = gzip_compression_is_enabled)
@@ -28,11 +58,49 @@ function query_flux(isettings,bucket,measurement;range=Dict{String,Any}(),fields
         rngstr = string("range(",rngstr,")")
     end
     
+    
     q = """from(bucket: "$(bucket)")"""
+    
+    #add range filter
     if length(rngstr) > 0 
-        q = string(q,"""|> """,rngstr)
+        q = string(q,""" |> """,rngstr)
     end
-    #println(q)
+
+    #filter for measurement
+    if length(measurement) > 0 
+        #|> filter(fn: (r) => r["_measurement"] == "my_meas")
+        q = string(q,""" |> filter(fn: (r) => r["_measurement"] == """,'"',measurement,'"',")")
+    end
+
+    if length(fields)>0
+        cnt = 1
+        q = string(q,""" |> filter(fn: (r) => """)
+        for f in fields 
+            #  |> filter(fn: (r) => r["_field"] == "humidity" or r["_field"] == "temperature")
+            q = string(q,""" r["_field"] == """,'"',f,'"')            
+            if cnt < length(fields) 
+                q = string(q," or ")
+            end
+            cnt += 1
+        end
+        q = string(q,")")
+    end
+
+    if length(tags)>0
+        for (k,v) in tags 
+            #|> filter(fn: (r) => r["color"] == "blue")
+            q = string(q,""" |> filter(fn: (r) => r[""",'"',k,'"',"] == ",'"',v,'"',")")
+        end
+    end
+
+    if length(aggregate) > 0 
+        q = string(q,""" |> """,aggregate)
+        #|> mean()
+    end
+
+    #https://docs.influxdata.com/flux/v0.x/function-types/#aggregates
+    #aggregation functions can have parameters
+
     # |> range(start: -100d) """
     #q = """from(bucket: "$(bucket)")"""
     #TODO, implement range for function query_flux
