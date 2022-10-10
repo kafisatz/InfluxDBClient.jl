@@ -1,4 +1,7 @@
 #!/bin/sh
+
+set -eo pipefail
+
 echo "Running entrypoint.sh..."
 
 #docker run -d -p 8086:8086 \
@@ -14,8 +17,6 @@ echo "Running entrypoint.sh..."
 
 #source:
 #https://github.com/influxdata/influxdata-docker/blob/master/influxdb/2.4/entrypoint.sh
-
-set -eo pipefail
 
 
 ## READ ME
