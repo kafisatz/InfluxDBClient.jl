@@ -53,6 +53,8 @@ function get_settings_from_file(;file="")
     
     fi = raw"
     =#
+@info("we should probably split only once per line at the first space! (if a value contains a space)")
+
     if length(file) <= 0 
         file = joinpath(ENV["USERPROFILE"],".influxdb","config")
     end
