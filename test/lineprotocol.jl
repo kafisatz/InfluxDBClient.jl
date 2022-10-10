@@ -143,7 +143,7 @@
 
     @test_throws UndefKeywordError write_dataframe(settings=isettings,measurement="xxmeasurment",data=df,fields=["humidity","temperature"],timestamp=:datetime,compress=false)
 
-   @warn("Todo - We may want to add a test for each note in the 'Manual', e.g. Line protocol does not support the newline character \n in tag or field values.")
+   #"Todo - We may want to add a test for each note in the 'Manual', e.g. Line protocol does not support the newline character \n in tag or field values.")
    #e.g. 
    "https://github.com/influxdata/influxdb2-sample-data/blob/master/air-sensor-data/sample-sensor-info.csv"
 

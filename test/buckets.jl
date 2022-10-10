@@ -28,6 +28,7 @@
 
     #errors
     organization_names,jsonORG = get_organizations(isettings)
+    @unpack INFLUXDB_ORG = isettings
     ORG_ID = get_orgid(jsonORG,INFLUXDB_ORG)
     @test_throws ArgumentError get_orgid(jsonORG,"mi___ha")
 
