@@ -149,6 +149,7 @@ end
 
 lp_formatted_field_value(v::T) where {T<:AbstractFloat} = v
 lp_formatted_field_value(v::T) where {T<:Int} = string(v,"i")
+lp_formatted_field_value(v::T) where {T<:Integer} = string(v,"i")
 lp_formatted_field_value(v::T) where {T<:UInt} = string(v,"u")
 lp_formatted_field_value(v::T) where {T<:AbstractString} = string('"',v,'"')
 
