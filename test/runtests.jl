@@ -23,6 +23,11 @@ isettings = get_settings()
 r = HTTP.request("GET", """http://$(isettings.INFLUXDB_HOST)/metrics""",status_exception = false)
 @test r.status == 403
 
+#Post onboarding request
+#this should work if the DB was 'newly set up' (e.g. by docker in github action / CI )
+#curl -i -X POST http://localhost:8086/api/v2/setup -H 'accept: application/json' -d '{"username": "my-user", "password": "my-password", "org": "my-org", "bucket": "my-bucket", "token": "my-token"}'
+@warn("implement this")
+
 #smoketest 2 to see if DB is up
 #https://docs.influxdata.com/influxdb/v2.4/write-data/developer-tools/api/
 bucket_names,json = try
