@@ -46,3 +46,28 @@ function get_settings(;org::String="",token::String="",host::String="",user::Str
 
     return isettings
 end
+
+export get_settings_from_file
+function get_settings_from_file(;file="") 
+    #=
+    
+    fi = raw"
+    =#
+    if length(file) <= 0 
+        file = joinpath(ENV["USERPROFILE"],".influxdb","config")
+    end
+    if !isfile(file)
+        throw(ArgumentError("File not found \r\n$(file)"))
+    end
+    txt = readlines(file)
+    txt2 = split.(txt," ")
+    for i=1:length(txt)
+        @assert size(txt2[i],1) == 2
+        k = txt2[i,1]
+        v = txt2[i,1]        
+        k = lstrip(rstrip(k))
+        v = lstrip(rstrip(v))
+    end
+
+    return nothing 
+end 
