@@ -1,1 +1,0 @@
-docker run -dp 8086:8086 influxdbclient
