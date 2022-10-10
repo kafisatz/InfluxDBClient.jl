@@ -103,9 +103,8 @@ function lineprotocol(measurement::String,df::DataFrame,fields0::Union{Vector{St
         end
 
         return lp
-
-
     else
+
         lp = create_lp(df[1,:],measurement,timestamp,fields,tagsSymbols,influx_precision,shift_datetime_to_utc)
         for i = 2:size(df,1)
             lpstr_thisrow = create_lp(df[i,:],measurement,timestamp,fields,tagsSymbols,influx_precision,shift_datetime_to_utc)
@@ -114,7 +113,6 @@ function lineprotocol(measurement::String,df::DataFrame,fields0::Union{Vector{St
         return lp
     end
 
-    return nothing
 end
 
 export create_lp

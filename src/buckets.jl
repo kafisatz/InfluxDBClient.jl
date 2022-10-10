@@ -111,21 +111,18 @@ function get_orgid(json,org)
     return org_ID
 end 
 
+#=
 export get_buckets_curl
 function get_buckets_curl(isettings;limit=100,offset=0)
     @unpack INFLUXDB_HOST,INFLUXDB_TOKEN = isettings
-
-    #r = HTTP.request("GET", "http://httpbin.org/ip")
-    #println(r.status)
-    #println(String(r.body))
     cmd = `curl -s --request GET "http://$(INFLUXDB_HOST)/api/v2/buckets?limit=$limit&offset=$offset" --header "Authorization: Token $(INFLUXDB_TOKEN)" --header "Content-Type: text/plain; charset=utf-8" --header "Accept: application/json"`
-
     rs = read(cmd, String)
     json = JSON3.read(rs)
-
     bucket_names = map(x->x.name,json.buckets)
     return bucket_names,json
   end
+=#
+
   #=
   https://docs.influxdata.com/influxdb/cloud/organizations/buckets/create-bucket/
   https://docs.influxdata.com/influxdb/cloud/organizations/buckets/create-bucket/

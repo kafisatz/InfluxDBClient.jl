@@ -26,6 +26,14 @@
     @test lp == lp_want
     @test 204 == write_data(isettings,a_random_bucket_name,lp,"ns")
 
+    #microseconds
+    lp = lineprotocol("my_meas",df,["temperature","humidity"], :datetime,influx_precision = "us")
+    @test 204 == write_data(isettings,a_random_bucket_name,lp,"us")
+
+    #seconds
+    lp = lineprotocol("my_meas",df,["temperature","humidity"], :datetime,influx_precision = "ss")
+    @test 204 == write_data(isettings,a_random_bucket_name,lp,"s")
+
     #with Symbol
     @test lp == lineprotocol("my_meas",df,Symbol.(["temperature","humidity"]), :datetime)
     @test 204 == write_data(isettings,a_random_bucket_name,lp,"ns")
