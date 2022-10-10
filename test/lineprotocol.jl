@@ -194,10 +194,11 @@
 
 
     #Int32 and UInt32 etc types 
-    df = DataFrame(sensor_id = ["TLM0900","TLM0901","TLM0901"],other_tag=["m","m","x"] ,temperature = [73.9,55.1,22.9], humidity=[149,552,3], datetime = [some_dt,some_dt-Second(51),some_dt-Second(500)])
-    
-    lp = lineprotocol("my_meas",df[1:1,:],["temperature","humidity"], :datetime)
-    
+    for tt in [UInt128,UInt64,UInt32,UInt16,UInt8,Int128,Int64,Int32,Int16,Int8]
+        df = DataFrame(sensor_id = ["TLM0900","TLM0901","TLM0901"],other_tag=["m","m","x"] ,temperature = [73.9,55.1,22.9], humidity=convert(Vector{tt},[149,552,3]), datetime = [some_dt,some_dt-Second(51),some_dt-Second(500)])    
+        @test eltype(df.humidity) == tt
+        lp = lineprotocol("my_meas",df[1:1,:],["temperature","humidity"], :datetime)
+    end
 
     delete_bucket(isettings,a_random_bucket_name);
 end
