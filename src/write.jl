@@ -1,11 +1,27 @@
 
 export write_dataframe 
-function write_dataframe(;settings,bucket,measurement,data,fields,timestamp,tags=String[],batchsize::Int = 0,influx_precision::String = "ns",tzstr::String = "UTC",compress::Bool=false)
-    if batchsize <= 0 
+function write_dataframe(;settings,bucket,measurement,data,fields,timestamp,tags=String[],batchsize::Int = 0,influx_precision::String = "ns",tzstr::String = "UTC",compress::Bool=false,printinfo::Bool=true)
+    size(data,1) < 1 && throw(ArgumentError("DataFrame has zero rows"))
+    if batchsize <= 0         
         lp = lineprotocol(measurement,data,fields,timestamp,tags=tags,influx_precision=influx_precision,tzstr=tzstr,compress=compress)
         rs = write_data(settings,bucket,lp,"ns")
     else 
-        
+        i = 0
+        sz = size(data,1)
+        endpos = 1 
+        startpos = 1
+        nbatches = div(sz,batchsize)
+        while endpos < sz
+            i += 1
+            #loop over batches
+            printinfo && @info("Processing batch $(i) of $(nbatches)...")
+            endpos = min(sz,startpos + batchsize - 1)
+            vdata = view(data,startpos:endpos,:)
+            lp = lineprotocol(measurement,vdata,fields,timestamp,tags=tags,influx_precision=influx_precision,tzstr=tzstr,compress=compress)
+            rs = write_data(settings,bucket,lp,"ns")
+            startpos = endpos + 1            
+        end
+
     end
     return rs,lp
 end
