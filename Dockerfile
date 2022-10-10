@@ -1,3 +1,6 @@
+#https://hub.docker.com/_/influxdb
+#then click on a tag to get the dockerfile
+
 #https://raw.githubusercontent.com/influxdata/influxdata-docker/8a3a2ae5bdae946cac8371a69cad45600830224f/influxdb/2.4/Dockerfile 
 FROM buildpack-deps:buster-curl
 
@@ -74,6 +77,7 @@ VOLUME /var/lib/influxdb2 /etc/influxdb2
 
 #COPY default-config.yml /etc/defaults/influxdb2/config.yml
 COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["influxd"]
