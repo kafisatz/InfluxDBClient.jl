@@ -78,7 +78,7 @@ VOLUME /var/lib/influxdb2 /etc/influxdb2
 #COPY default-config.yml /etc/defaults/influxdb2/config.yml
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-RUN chmod -t /tmp
+RUN mkdir -p /tmp/inflxtmp
 
 ENTRYPOINT ["/entrypoint.sh"]
 #CMD is the command the container executes by default when you launch the built image. A Dockerfile will only use the final CMD defined. 

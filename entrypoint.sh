@@ -302,7 +302,7 @@ function init_influxd () {
     fi
 
     # Generate a config file with a known HTTP port, and TLS disabled.
-    local -r init_config=/tmp/config.yml
+    local -r init_config=/tmp/inflxtmp/config.yml
     influxd print-config "${@}" | \
         sed -e "s#${final_bind_addr}#${init_bind_addr}#" -e '/^tls/d' > \
         "${init_config}"
