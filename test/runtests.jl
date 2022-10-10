@@ -19,13 +19,9 @@ isettings = get_settings()
 
 #smoketest 1 to see if DB is up
 #a get request to """http://$(INFLUXDB_HOST)/metrics""" is another possibility to check if the server is up
-#"""http://$(INFLUXDB_HOST)/metrics"""
 r = HTTP.request("GET", """http://$(isettings.INFLUXDB_HOST)/metrics""",status_exception = false)
 @test in(r.status,[200,403])
-if r.status == 200
-    #on github CI, the status page returns 200 (maybe because password/token are not initialized?)
-    @warn("Metrics page request has status 200. This is unexpected")
-end
+#maybe status is 200 when metrics are ENABLED and status is 403 when metrics are DISABLED
 
 #Post onboarding request
 #this should work if the DB was 'newly set up' (e.g. by docker in github action / CI )
