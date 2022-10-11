@@ -40,7 +40,7 @@ end;
 prefix = ifelse(isinteractive() , "test/", "")
 include(string(prefix,"functions.jl"))
 
-nmax_repeat_selected_query_tests = endswith(ENV["USERPROFILE"],"konig") ? 2 : 20
+nmax_repeat_selected_query_tests = (haskey(ENV,"USERPROFILE")&&endswith(ENV["USERPROFILE"],"konig")) ? 2 : 20
 #see NOTE99831 for motivation of nmax
 #testing showed that influxdb does not always return the very same values
 
