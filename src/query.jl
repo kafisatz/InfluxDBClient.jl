@@ -2,10 +2,20 @@
 #query_flux_raw(isettings,a_random_bucket_name,"my_meas",range=Dict("start"=>"-100d"))
 
 export query_flux
+
+
+
+"""
+    query_flux(isettings,bucket,measurement;parse_datetime=false,datetime_precision="ns",tzstr = "UTC",range=Dict{String,Any}(),fields::Vector{String}=String[],tags=Dict{String,Any}(),aggregate::String="")
+    
+    queries the database and returns a dataframe    
+"""
 function query_flux(isettings,bucket,measurement;parse_datetime=false,datetime_precision="ns",tzstr = "UTC",range=Dict{String,Any}(),fields::Vector{String}=String[],tags=Dict{String,Any}(),aggregate::String="")
+    #tzstr = "Europe/Berlin"
     #tzstr is used to convert the datetime in Range to UTC
     tz = Dates.TimeZone(tzstr) #is of type TimeZone
     shift_datetime_to_utc(x) = DateTime(TimeZones.astimezone(TimeZones.ZonedDateTime(x, tz), utc_tz))
+    shift_datetime_to_local(x) = DateTime(TimeZones.astimezone(TimeZones.ZonedDateTime(x, utc_tz), tz))
 
     #limitation / todo / tbd 
     #if range=-100d we DO NOT perform any modification of it!
@@ -42,7 +52,8 @@ function query_flux(isettings,bucket,measurement;parse_datetime=false,datetime_p
         #? should _start and _stop be discarded? 
 
         #influxdb can have different precision for different columns (unexpectedly)
-        for coln in [:_start,:_stop,:_time]
+        #for coln in [:_start,:_stop,:_time]
+        for coln in [:_time]
             trimz = false
             #NOTE  a single column from InfluxDB can have a varying number of digits! (nanoseconds / ms / us precision)
             #row 1 can have more/fewer digits than the next row!
@@ -61,26 +72,12 @@ function query_flux(isettings,bucket,measurement;parse_datetime=false,datetime_p
             end
 
             #@show precision_of_data
-            #@show df[1,:]
+            #@show df[1:3,:]
             
             if in(precision_of_data,["ns","us"])
-                #need NanoDates
-                #if precision_of_data == "ns"
-                #warn todo tbd this is UTC!
-                if any(x->endswith("Z",x),df[!,coln])
-                    aFormatSecsUTC = dateformat"yyyy-mm-ddTHH:MM:SSZ"
-                    df[!,coln] = NanoDates.NanoDate.(df[!,coln],aFormatSecsUTC)
-                    #df[!,coln] = map(x->ifelse(endswith("Z",x),string(x[1:end-1],".0Z"),x),df[!,coln])
-                else
-                    if !all(x->isequal(30,length(x)),df[!,coln])
-                        df[!,coln] = map(x->x[1:end-1],df[!,coln])
-                        #NOTE99831: this condition seems to be entered randomly (quite rarely actually). need to investigate why
-                        #@show "NOTE99831"
-                        df[!,coln] = NanoDates.NanoDate.(df[!,coln])
-                    else 
-                        df[!,coln] = NanoDates.NanoDate.(df[!,coln])
-                    end
-                end
+                throw(ArgumentError("Precision ns and us is currently not supported for `query_flux`. Set the keyword parse_datetime to false to disable datetime parsing."))
+                #note: NanoDates do not support TimeZones 
+                #TimeZones do not support precision higher than ms
             else 
                 #dates is sufficient
                 if precision_of_data == "ms"
@@ -91,16 +88,13 @@ function query_flux(isettings,bucket,measurement;parse_datetime=false,datetime_p
                 end
                 #DateTime.(df._time)
                 #df._time[1]
-                #TimeZones.ZonedDateTime("2019-11-18T13:09:31Z", dfmt)            
+                #TimeZones.ZonedDateTime("2019-11-18T13:09:31Z", dfmt)
                 col = df[!,coln]
-                
-                #@show coln,ln,ln2,precision_of_data,trimz
-                #@show df[1:4,coln]
-                
+                #dt_local = shift_datetime_to_local.(string.(col))
                 if trimz                
-                    df[!,coln] = DateTime.(map(x->x[1:end-1],col), dfmt)
+                    df[!,coln] = shift_datetime_to_local.(DateTime.(map(x->x[1:end-1],col), dfmt))
                 else 
-                    df[!,coln] = DateTime.(TimeZones.ZonedDateTime.(col, dfmt))
+                    df[!,coln] = shift_datetime_to_local.(DateTime.(TimeZones.ZonedDateTime.(col, dfmt)))
                 end
             end    
         end

@@ -17,11 +17,10 @@
         return df
     end
 
-    function generate_data_ns(nn)
+    function generate_data_ms(nn)
         # do not change some_dt! 
         Random.seed!(123)
-        some_dt = DateTime(2022,9,30,15,59,33,0)
-        some_nanodt = NanoDate(some_dt)
+        some_dt = DateTime(2022,9,30,15,59,33,11)
         sensor_id = ["TLM0900","TLM0901","TLM0901"]
         color = ["green","blue"]
     
@@ -32,9 +31,10 @@
                         abool = map(x->ifelse(x==1,true,false),rand(1:2,nn)),
                         humidity = rand(nn).^2 .*50,
                         co2 = map(i->mod(1 + i,100)*2,1:nn),
-                        datetime = some_nanodt .- Nanosecond.(rand(1:Int(1e11),nn)));
+                        datetime = some_dt .- Millisecond.(rand(1:Int(2e8),nn)));
+                        #Dates.canonicalize(Millisecond(2e8)) #2 days
         return df
-    end
+    end    
 
    function reset_bucket(isettings,a_random_bucket_name) 
         buckets,_ = get_buckets(isettings)

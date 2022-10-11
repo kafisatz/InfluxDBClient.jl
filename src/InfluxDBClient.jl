@@ -9,7 +9,7 @@ using Dates
 import HTTP
 import Random
 import CSV
-import NanoDates
+#import NanoDates
 
 export PRECISIONS
 export PRECISION_DICT

@@ -1,6 +1,6 @@
 using InfluxDBClient
-using Test, UnPack, DataFrames, Dates
-using NanoDates, Aqua
+using Test, UnPack, DataFrames, Dates, Aqua
+#using NanoDates
 import JSON3, HTTP, CodecZlib, TimeZones, Random, CSV
 using BenchmarkTools, StatsBase
 

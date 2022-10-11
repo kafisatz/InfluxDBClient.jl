@@ -93,8 +93,8 @@
                     #https://github.com/JuliaTime/NanoDates.jl/issues/21
                     ts_result = string(ts_result[1:end-1],".0Z")
                 end
-                nd = NanoDate(ts_result)
-                @test nanodate2unixnanos(nd) == ts_int * d
+                #nd = NanoDate(ts_result)
+                #@test nanodate2unixnanos(nd) == ts_int * d
                 #2019-05-04T15:28:00.000Z
                 #2019-05-02T16:12:41Z
                 #=
@@ -115,57 +115,59 @@
         end
     end
     
-    dfns = generate_data_ns(10000) #do not change the number, otherwise data will change!
-    dfus = deepcopy(dfns)
-    dfus.datetime = DateTime.(dfns.datetime)
+    dfus = generate_data_ms(10000) #do not change the number, otherwise data will change!
     #currently writing DataFrame is only possible with s or ms precision 
     for _ in 1:nmax_repeat_selected_query_tests
         for selected_precision in ["ms","s"]
-            if "ms" == selected_precision
-                dfns = generate_data_ns(10000) #do not change the number, otherwise data will change!
-                dfus = dfns
-                dfus.datetime = DateTime.(dfns.datetime)
-            else 
-                dfus = generate_data(10000) #do not change the number, otherwise data will change!
-            end
-            @info("Query (query_flux) - Testing percision roundtrip for precision = $(selected_precision)...")
+            for someTz in ["UTC","Europe/Berlin","Asia/Dubai"]
+                if "s" == selected_precision
+                    dfus = generate_data(10000) #do not change the number, otherwise data will change!
+                else 
+                    dfus = generate_data_ms(10000) #do not change the number, otherwise data will change!
+                end
+                @info("Query (query_flux) - Testing percision roundtrip for precision = $(selected_precision) and tz=$(someTz)...")
 
-            lp = lineprotocol("my_meas$(selected_precision)",dfus,["temperature"],tags=["color","sensor_id"], :datetime,compress = false,influx_precision=selected_precision);
-            #selecting first 100 characters, otherwise error message may be huge
-            selected_precision == "s" && @test startswith(lp[1:100],"my_meas$(selected_precision),color=green,sensor_id=TLM0901 temperature=2.3 1664553257\nmy_me");
-            selected_precision == "ms" && @test startswith(lp[1:100],"my_meas$(selected_precision),color=green,sensor_id=TLM0901 temperature=2.3 1664553569844\nmy_me");
-            rs = write_data(isettings,a_random_bucket_name,lp,selected_precision);
-            @test rs == 204
-            
-            #get DataFrame
-                df2 = query_flux(isettings,a_random_bucket_name,"my_meas$(selected_precision)";parse_datetime=true,range=Dict("start"=>minimum(dfus.datetime)-Day(2)),fields=["temperature"]);
-                dfsub = filter(x->x.color=="blue",df2)
-                        filter!(x->x.sensor_id=="TLM0900",dfsub)
-                        select!(dfsub,Not([:_start,:_stop,:_measurement,:_field,:table,:result]))
-                        rename!(dfsub,:_value=>:temperature)
-                        rename!(dfsub,:_time=>:datetime)
-                        select!(dfsub,[:datetime,:temperature,:color,:sensor_id])
-                        sort!(dfsub,:datetime)
+                lp = lineprotocol("my_meas$(selected_precision)",dfus,["temperature"],tags=["color","sensor_id"], :datetime,compress = false,tzstr = someTz,influx_precision=selected_precision);
+                if someTz == "UTC"
+                    #selecting first 100 characters, otherwise error message may be huge
+                    selected_precision == "s" && @test startswith(lp[1:100],"my_meas$(selected_precision),color=green,sensor_id=TLM0901 temperature=2.3 1664553257\nmy_meas");
+                    selected_precision == "ms" && @test startswith(lp[1:100],"my_meas$(selected_precision),color=green,sensor_id=TLM0901 temperature=2.3 1664547262564\nmy");
+                end
+                rs = write_data(isettings,a_random_bucket_name,lp,selected_precision);
+                @test rs == 204
+                
+                #get DataFrame
+                    df2 = query_flux(isettings,a_random_bucket_name,"my_meas$(selected_precision)";tzstr = someTz,parse_datetime=true,range=Dict("start"=>minimum(dfus.datetime)-Day(2)),fields=["temperature"]);
+                    dfsub = filter(x->x.color=="blue",df2)
+                            filter!(x->x.sensor_id=="TLM0900",dfsub)
+                            select!(dfsub,Not([:_start,:_stop,:_measurement,:_field,:table,:result]))
+                            rename!(dfsub,:_value=>:temperature)
+                            rename!(dfsub,:_time=>:datetime)
+                            select!(dfsub,[:datetime,:temperature,:color,:sensor_id])
+                            sort!(dfsub,:datetime)
 
-                dfussub = filter(x->x.color=="blue",dfus)
-                        filter!(x->x.sensor_id=="TLM0900",dfussub)
-                        select!(dfussub,Not([:abool,:humidity,:co2,:an_int_value]))
-                        unique!(dfussub)
-                        select!(dfussub,[:datetime,:temperature,:color,:sensor_id])
-                        sort!(dfussub,:datetime)
+                    dfussub = filter(x->x.color=="blue",dfus)
+                            filter!(x->x.sensor_id=="TLM0900",dfussub)
+                            select!(dfussub,Not([:abool,:humidity,:co2,:an_int_value]))
+                            unique!(dfussub)
+                            select!(dfussub,[:datetime,:temperature,:color,:sensor_id])
+                            sort!(dfussub,:datetime)
+                
+                #compare
 
                 #if the timestamp of the data we sent is NOT unique, data was overwritte by the second line sent
                 #let us only compare the entries where the ts is unique
                 cm = countmap(dfussub.datetime)
                 filter!(x->cm[x.datetime] <= 1,dfussub)
-                filter!(x->cm[x.datetime] <= 1,dfsub)
+                filter!(x->haskey(cm,x.datetime) && cm[x.datetime] <= 1,dfsub)
                         
                 @test size(dfsub,1) == size(dfussub,1)
                 if selected_precision != "s"
                     @test dfsub.datetime == dfussub.datetime
                 else
-                    @test maximum(abs.(dfsub.datetime .- dfussub.datetime)) <= Second(1)
+                    @test extrema(dfsub.datetime .- dfussub.datetime) == (Millisecond(0), Millisecond(0))
                 end
+            end
         end
     end 
     #=
