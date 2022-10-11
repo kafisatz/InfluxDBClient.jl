@@ -33,7 +33,8 @@ There are three optoins to configure the database access (see function `get_sett
 * When data is provided integer valued, InfluxDB will display the result as float, when an aggregation function (such as mean) is selected. Select 'last' or similar to show the data as is.
 
 ## Ideas / Aspects not yet implemented
-* A query function (`query_flux`) has been drafted. But it is rudimentary and output is not parsed yet, see https://docs.influxdata.com/influxdb/cloud/api/#operation/PostQuery for API details
+* A query function (`query_flux`) has been drafted. But it is rudimentary and output is not fully parsed yet, see https://docs.influxdata.com/influxdb/cloud/api/#operation/PostQuery for API details
+* Add benchmark suite https://github.com/JuliaCI/PkgBenchmark.jl
 * Precision is currently stored as string 'ns', 's', 'us', 'ms'. Possibly performance is increased if we use another type for this
 * May want to consider performance tips from here: https://docs.influxdata.com/influxdb/cloud/write-data/best-practices/optimize-writes/
 * The optimal batch size is 5000 lines of line protocol. -> account for this? 
