@@ -1,5 +1,6 @@
 using InfluxDBClient
 using Test, UnPack, DataFrames, Dates
+using Aqua
 import JSON3, HTTP, CodecZlib, TimeZones, Random, CSV
 using BenchmarkTools, StatsBase
 
@@ -44,3 +45,5 @@ else
     prefix = ifelse(isinteractive() , "test/", "")
     include(string(prefix,"influxdb_tests.jl"))
 end
+
+Aqua.test_all(InfluxDBClient,ambiguities=false,deps_compat=false)

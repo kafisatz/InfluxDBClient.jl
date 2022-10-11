@@ -11,7 +11,6 @@ import Random
 import CSV
 
 export PRECISIONS
-export PRECISION_DICT
 
 #PRECISION_DICT = Dict("s"=>1_000_000_000,"ms"=>1_000_000,"us"=>1000,"ns"=>1)
 PRECISIONS = ["s","ms","us", "ns"]
