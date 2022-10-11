@@ -4,7 +4,7 @@
 
    #tests
     #delete_bucket(isettings,a_random_bucket_name);
-    create_bucket(isettings,a_random_bucket_name);
+    reset_bucket(isettings,a_random_bucket_name);
 
    #= 
    payload = """airSensors,sensor_id=TLM0201 temperature=73.97038159354763,humidity=35.23103248356096,co=0.48445310567793615 1630424257000000000
@@ -167,7 +167,7 @@
 
     delete_bucket(isettings,a_random_bucket_name);
 
-    create_bucket(isettings,a_random_bucket_name);
+    reset_bucket(isettings,a_random_bucket_name);
 
     
     df = DataFrame(sensor_id = ["TLM0900","TLM0901","TLM0901"],other_tag=["m","m","x"] ,temperature = [73.9,55.1,22.9], humidity=[14.9,55.2,3], datetime = [some_dt,some_dt-Second(51),some_dt-Second(500)])

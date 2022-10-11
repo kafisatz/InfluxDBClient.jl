@@ -17,14 +17,17 @@ InfluxDBClient.jl
 * You may want to consider the functions in runtests.jl to get an idea of the other functions and their arguments.
 
 ## Configuration
-You can either define environment variables to configure the settings, see function `get_settings`.
-Or you can provide a space delimited file, see config_example.txt for the syntax (space delimited, one entry per row)
+There are three optoins to configure the database access (see function `get_settings`)
+1) environment variables
 * ENV["INFLUXDB_ORG"] the organization
 * ENV["INFLUXDB_TOKEN"] the token to access the InfluxDB
 * ENV["INFLUXDB_HOST"] should include the port, e.g. "10.14.15.10:8086"
+2) keyword argumetns to `get_settings`
+3) provide a space delimited file to `get_settings`
 
 ## Limitations
-* The functions are quite slow for large DataFrames. I am open for suggestions to improve my string handling in Julia.
+* **Not all functions account for TimeZones in a proper manner**! Notably DateTime in Julia Base/Core (Pkg Dates) cannot handle nanosecond percision. The Pkg NanoDates in contrast cannot handle TimeZones.
+* The functions are quite slow for large DataFrames. I am open for suggestions on how to improve my string handling in Julia.
 * Backslashes and special characters in strings may not (yet) be parsed correctly. https://docs.influxdata.com/influxdb/v2.4/reference/syntax/line-protocol/#integer 
 * Some bucket management functions (`get_buckets` etc) assume that you have fewer than 100 buckets. Functions may fail otherwise. See keywords limit and offset. 
 * When data is provided integer valued, InfluxDB will display the result as float, when an aggregation function (such as mean) is selected. Select 'last' or similar to show the data as is.

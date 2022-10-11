@@ -52,7 +52,7 @@ function delete_bucket(isettings,bucket)
     end
     #"Content-Type"=>"text/plain; charset=utf-8"
 
-    return nothing
+    return r.status
 end
 
 export get_bucketid

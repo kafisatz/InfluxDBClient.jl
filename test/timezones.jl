@@ -3,7 +3,7 @@
 
 @testset "Timezones.jl                   " begin
 
-create_bucket(isettings,a_random_bucket_name);
+reset_bucket(isettings,a_random_bucket_name);
 
 df = DataFrame(sensor_id = ["TLM0900","TLM0901","TLM0901"], temperature = [73.9,55.1,22.9], humidity=[14.9,55.2,3], datetime = [now(),now()-Second(51),now()-Second(50)])
 lp = lineprotocol("my_meas",df,["temperature","humidity"],tags=["sensor_id"], :datetime);
@@ -11,7 +11,7 @@ lp = lineprotocol("my_meas",df,["temperature","humidity"],tags=["sensor_id"], :d
 
 delete_bucket(isettings,a_random_bucket_name);
 
-create_bucket(isettings,a_random_bucket_name);
+reset_bucket(isettings,a_random_bucket_name);
 
 df = DataFrame(sensor_id = ["TLM0900","TLM0901","TLM0901"], temperature = [73.9,55.1,22.9], humidity=[14.9,55.2,3], datetime = [now(),now()-Second(51),now()-Second(50)])
 lp = lineprotocol("my_meas",df,["temperature","humidity"], :datetime, tags=["sensor_id"],tzstr="Europe/Berlin");

@@ -1,5 +1,5 @@
 @testset "Large Data.jl                  " begin
-    create_bucket(isettings,a_random_bucket_name);
+    reset_bucket(isettings,a_random_bucket_name);
 
     #large_data
     

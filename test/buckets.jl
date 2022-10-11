@@ -8,6 +8,7 @@
     @test length(bucket_names) > 0  #not sure if is possible to have ZERO buckets...? (_tasks, _monitoring) 
 
     #cleanup (if bucket exists from developping / testing)
+    @show in(a_random_bucket_name,bucket_names)
     if in(a_random_bucket_name,bucket_names)
         @test isnothing(delete_bucket(isettings,a_random_bucket_name))
     end
@@ -20,11 +21,11 @@
     bucket_names,json = get_buckets(isettings);
     @test in(a_random_bucket_name,bucket_names)
 
+    reset_bucket(isettings,a_random_bucket_name)
     #delete bucket
-    @test isnothing(delete_bucket(isettings,a_random_bucket_name))
+    @test 204 == delete_bucket(isettings,a_random_bucket_name)
 
     @test_throws ArgumentError delete_bucket(isettings,a_random_bucket_name)
-
 
     #errors
     organization_names,jsonORG = get_organizations(isettings)
@@ -35,5 +36,11 @@
     buckets,json = get_buckets(isettings;limit=100,offset=0);
     @test_throws ArgumentError BUCKET_ID = get_bucketid(json,a_random_bucket_name)
     @test_throws ArgumentError BUCKET_ID = get_bucketid(json,"mi____ha")
+
+
+    #test delete_bucket return value
+    reset_bucket(isettings,a_random_bucket_name);    
+        rs = delete_bucket(isettings,a_random_bucket_name);
+        @test rs == 204
 
 end

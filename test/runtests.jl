@@ -1,6 +1,6 @@
 using InfluxDBClient
 using Test, UnPack, DataFrames, Dates
-using Aqua
+using NanoDates, Aqua
 import JSON3, HTTP, CodecZlib, TimeZones, Random, CSV
 using BenchmarkTools, StatsBase
 
@@ -37,13 +37,35 @@ catch
 end;
 @test length(bucket_names) > 0
 @show bucket_names
+prefix = ifelse(isinteractive() , "test/", "")
+include(string(prefix,"functions.jl"))
+
+nmax_repeat_selected_query_tests = endswith(ENV["USERPROFILE"],"konig") ? 2 : 20
+#see NOTE99831 for motivation of nmax
+#testing showed that influxdb does not always return the very same values
 
 if !(length(bucket_names) > 0 )
     @warn("InfluxDB is not reachable. No tests will be performed.")
 else
-    @info("InfluxDB seems to be reachable. Running tests...")
-    prefix = ifelse(isinteractive() , "test/", "")
-    include(string(prefix,"influxdb_tests.jl"))
+    @info("InfluxDB seems to be reachable. Running tests...")    
+        
+    testfis = ["buckets.jl","write.jl","lineprotocol.jl","timezones.jl","query.jl","large_data.jl"]
+    for tf in testfis
+        isfile(tf) && include(tf)
+        tf2 = joinpath("test",tf)
+        isfile(tf2) && include(tf2)
+    end
+
+    #=
+        include(joinpath("test","buckets.jl"))
+        include(joinpath("test","write.jl"))
+        include(joinpath("test","lineprotocol.jl"))
+        include(joinpath("test","timezones.jl"))
+        include(joinpath("test","query.jl"))
+        include(joinpath("test","large_data.jl"))
+    =#
+
 end
 
+#Aqua tests
 Aqua.test_all(InfluxDBClient,ambiguities=false,deps_compat=false)

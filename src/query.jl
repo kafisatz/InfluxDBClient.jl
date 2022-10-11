@@ -2,7 +2,7 @@
 #query_flux_raw(isettings,a_random_bucket_name,"my_meas",range=Dict("start"=>"-100d"))
 
 export query_flux
-function query_flux(isettings,bucket,measurement;tzstr = "UTC",range=Dict{String,Any}(),fields::Vector{String}=String[],tags=Dict{String,Any}(),aggregate::String="")
+function query_flux(isettings,bucket,measurement;parse_datetime=false,datetime_precision="ns",tzstr = "UTC",range=Dict{String,Any}(),fields::Vector{String}=String[],tags=Dict{String,Any}(),aggregate::String="")
     #tzstr is used to convert the datetime in Range to UTC
     tz = Dates.TimeZone(tzstr) #is of type TimeZone
     shift_datetime_to_utc(x) = DateTime(TimeZones.astimezone(TimeZones.ZonedDateTime(x, tz), utc_tz))
@@ -10,11 +10,13 @@ function query_flux(isettings,bucket,measurement;tzstr = "UTC",range=Dict{String
     #limitation / todo / tbd 
     #if range=-100d we DO NOT perform any modification of it!
 
+    if !in(datetime_precision,PRECISIONS)
+        throw(ArgumentError("Invalid precision: $(datetime_precision) is not an element of $PRECISIONS"))
+    end
+
     rangeUTC = Dict{String,Any}()
     for (k,v) in range
         if isa(v,DateTime)
-            @show v
-            @show k
             v_utc = shift_datetime_to_utc(v)
             datetime_str = string(v_utc,"+00:00")
             rangeUTC[k] = datetime_str
@@ -29,7 +31,84 @@ function query_flux(isettings,bucket,measurement;tzstr = "UTC",range=Dict{String
     #interpret as DataFrame 
     df = CSV.File(bdy) |> DataFrame
     DataFrames.select!(df,Not(:Column1)) #unclear what this could/would be (let us drop it for now)
-    
+
+    #if there are zero rows, no need to parse anything
+    if size(df,1) <= 0
+        return df 
+    end
+
+    if parse_datetime
+        #parse time
+        #? should _start and _stop be discarded? 
+
+        #influxdb can have different precision for different columns (unexpectedly)
+        for coln in [:_start,:_stop,:_time]
+            trimz = false
+            #NOTE  a single column from InfluxDB can have a varying number of digits! (nanoseconds / ms / us precision)
+            #row 1 can have more/fewer digits than the next row!
+            #eg = ["2022-09-30T15:59:32.233Z", "2022-09-30T15:59:32.34Z"]
+            ln = length(df[!,coln][1])            
+            if !haskey(PRECISION_DATETIME_LENGTH,ln)
+                idx = searchsortedfirst(DATETIME_LENGTHS,ln)
+                if idx > length(DATETIME_LENGTHS)
+                    throw(ArgumentError("Unexpected string length ($(ln)) for column _time"))
+                end 
+                ln2 = DATETIME_LENGTHS[idx]
+                precision_of_data = PRECISION_DATETIME_LENGTH[ln2]                
+            else 
+                ln2 = ln
+                precision_of_data = PRECISION_DATETIME_LENGTH[ln]    
+            end
+
+            #@show precision_of_data
+            #@show df[1,:]
+            
+            if in(precision_of_data,["ns","us"])
+                #need NanoDates
+                #if precision_of_data == "ns"
+                    #warn todo tbd this is UTC!
+                    if any(x->endswith("Z",x),df[!,coln])
+                        #https://github.com/JuliaTime/NanoDates.jl/issues/21
+                        df[!,coln] = map(x->ifelse(endswith("Z",x),string(x[1:end-1],".0Z"),x),df[!,coln])
+                    else
+                        if !all(x->isequal(30,length(x)),df[!,coln])
+                            df[!,coln] = map(x->x[1:end-1],df[!,coln])
+                            #NOTE99831: this condition seems to be entered randomly (quite rarely actually). need to investigate why
+                            #@show "NOTE99831"
+                        else 
+                            df[!,coln] = NanoDates.NanoDate.(df[!,coln])
+                        end
+                    end
+                    
+                    #dfmt = dateformat"yyyy-mm-ddTHH:MM:SS.sssssssssz"
+                #else
+                #    dfmt = dateformat"yyyy-mm-ddTHH:MM:SS.sssz"
+                #end
+            else 
+                #dates is sufficient
+                if precision_of_data == "ms"
+                    dfmt = dateformat"yyyy-mm-ddTHH:MM:SS.sss"
+                    trimz = true
+                else 
+                    dfmt = dateformat"yyyy-mm-ddTHH:MM:SSz"
+                end
+                #DateTime.(df._time)
+                #df._time[1]
+                #TimeZones.ZonedDateTime("2019-11-18T13:09:31Z", dfmt)            
+                col = df[!,coln]
+                
+                #@show coln,ln,ln2,precision_of_data,trimz
+                #@show df[1:4,coln]
+                
+                if trimz                
+                    df[!,coln] = DateTime.(map(x->x[1:end-1],col), dfmt)
+                else 
+                    df[!,coln] = DateTime.(TimeZones.ZonedDateTime.(col, dfmt))
+                end
+            end    
+        end
+    end
+
     return df 
 end
 
@@ -53,11 +132,15 @@ function query_flux_raw(isettings,bucket,measurement;range=Dict{String,Any}(),fi
             if count > 0 
                 rngstr = string(rngstr," and ")
             end
-            rngstr = string(k,": ",v)       
+            #if v is a Date or DateTime add "+00:00" (UTC)
+            if typeof(v) <: Dates.AbstractTime
+                rngstr = string(k,": ",v,"+00:00")
+            else
+                rngstr = string(k,": ",v)
+            end
         end
         rngstr = string("range(",rngstr,")")
     end
-    
     
     q = """from(bucket: "$(bucket)")"""
     
@@ -112,6 +195,7 @@ function query_flux_raw(isettings,bucket,measurement;range=Dict{String,Any}(),fi
     
     url = """http://$(INFLUXDB_HOST)/api/v2/query?org=$INFLUXDB_ORG"""
     bdy = q
+    #@show q
 
     r = HTTP.request("POST", url, hdrs, body = bdy)
     if r.status != 200 

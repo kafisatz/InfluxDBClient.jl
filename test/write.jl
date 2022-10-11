@@ -4,7 +4,7 @@
 
 #tests
 #delete_bucket(isettings,a_random_bucket_name);
-create_bucket(isettings,a_random_bucket_name);
+reset_bucket(isettings,a_random_bucket_name);
 
 #call without compression keyword
 payload = """myMeasurement,tag1=value1,tag2=value2 fieldKey="fieldValue" 1556813561098000000"""
