@@ -66,24 +66,21 @@ function query_flux(isettings,bucket,measurement;parse_datetime=false,datetime_p
             if in(precision_of_data,["ns","us"])
                 #need NanoDates
                 #if precision_of_data == "ns"
-                    #warn todo tbd this is UTC!
-                    if any(x->endswith("Z",x),df[!,coln])
-                        #https://github.com/JuliaTime/NanoDates.jl/issues/21
-                        df[!,coln] = map(x->ifelse(endswith("Z",x),string(x[1:end-1],".0Z"),x),df[!,coln])
-                    else
-                        if !all(x->isequal(30,length(x)),df[!,coln])
-                            df[!,coln] = map(x->x[1:end-1],df[!,coln])
-                            #NOTE99831: this condition seems to be entered randomly (quite rarely actually). need to investigate why
-                            #@show "NOTE99831"
-                        else 
-                            df[!,coln] = NanoDates.NanoDate.(df[!,coln])
-                        end
+                #warn todo tbd this is UTC!
+                if any(x->endswith("Z",x),df[!,coln])
+                    aFormatSecsUTC = dateformat"yyyy-mm-ddTHH:MM:SSZ"
+                    df[!,coln] = NanoDates.NanoDate.(df[!,coln],aFormatSecsUTC)
+                    #df[!,coln] = map(x->ifelse(endswith("Z",x),string(x[1:end-1],".0Z"),x),df[!,coln])
+                else
+                    if !all(x->isequal(30,length(x)),df[!,coln])
+                        df[!,coln] = map(x->x[1:end-1],df[!,coln])
+                        #NOTE99831: this condition seems to be entered randomly (quite rarely actually). need to investigate why
+                        #@show "NOTE99831"
+                        df[!,coln] = NanoDates.NanoDate.(df[!,coln])
+                    else 
+                        df[!,coln] = NanoDates.NanoDate.(df[!,coln])
                     end
-                    
-                    #dfmt = dateformat"yyyy-mm-ddTHH:MM:SS.sssssssssz"
-                #else
-                #    dfmt = dateformat"yyyy-mm-ddTHH:MM:SS.sssz"
-                #end
+                end
             else 
                 #dates is sufficient
                 if precision_of_data == "ms"
