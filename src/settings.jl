@@ -3,7 +3,7 @@ function get_settings(;org::String="",token::String="",host::String="",user::Str
 
     #maybe add an option to use something along ~/.influxdbconfig ? 
     if length(file)>0
-        settings_from_file = get_settings_from_file(;file="")
+        settings_from_file = get_settings_from_file(;file=file)
         return settings_from_file
     else 
         settings_from_file = Dict{String,String}()
@@ -44,10 +44,12 @@ function get_settings_from_file(;file="")
 
     isettings = Dict{String,String}()
 
+    @show file
     if length(file) <= 0 
         file = joinpath(ENV["USERPROFILE"],".influxdb","config")
     end
     if !isfile(file)
+        @show file
         throw(ArgumentError("File not found \r\n$(file)"))
     end
     txt = readlines(file)

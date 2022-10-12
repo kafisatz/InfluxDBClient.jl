@@ -49,14 +49,14 @@ if !(length(bucket_names) > 0 )
 else
     @info("InfluxDB seems to be reachable. Running tests...")    
         
-    testfis = ["buckets.jl","write.jl","lineprotocol.jl","timezones.jl","query.jl","large_data.jl"]
+    testfis = ["settings.jl","buckets.jl","write.jl","lineprotocol.jl","timezones.jl","query.jl","large_data.jl"]
     for tf in testfis
         isfile(tf) && include(tf)
         tf2 = joinpath("test",tf)
         isfile(tf2) && include(tf2)
     end
-
     #=
+        include(joinpath("test","settings.jl"))
         include(joinpath("test","buckets.jl"))
         include(joinpath("test","write.jl"))
         include(joinpath("test","lineprotocol.jl"))
@@ -64,7 +64,6 @@ else
         include(joinpath("test","query.jl"))
         include(joinpath("test","large_data.jl"))
     =#
-
 end
 
 #Aqua tests

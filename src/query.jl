@@ -64,10 +64,8 @@ function query_flux(isettings,bucket,measurement;parse_datetime=false,datetime_p
                 if idx > length(DATETIME_LENGTHS)
                     throw(ArgumentError("Unexpected string length ($(ln)) for column _time"))
                 end 
-                ln2 = DATETIME_LENGTHS[idx]
                 precision_of_data = PRECISION_DATETIME_LENGTH[ln2]                
             else 
-                ln2 = ln
                 precision_of_data = PRECISION_DATETIME_LENGTH[ln]    
             end
 
@@ -190,8 +188,7 @@ function query_flux_raw(isettings,bucket,measurement;range=Dict{String,Any}(),fi
 
     r = HTTP.request("POST", url, hdrs, body = bdy)
     if r.status != 200 
-        @warn("Unexpected Status:")
-        @show r.status
+        @warn "Unexpected status" r.status
     end
 
     return r.body
