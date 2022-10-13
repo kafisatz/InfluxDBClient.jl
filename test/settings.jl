@@ -2,8 +2,6 @@
 @testset "Settings.jl                    " begin
 
     fi = normpath(joinpath(pathof(InfluxDBClient),"..","..","config_example.txt"))
-  @show fi
-@show isfile(fi)
   @test isfile(fi)
 
     senv = get_settings()
