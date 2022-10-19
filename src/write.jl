@@ -2,7 +2,8 @@
 export write_dataframe 
 function write_dataframe(;settings,bucket,measurement,data,fields,timestamp,tags=String[],batchsize::Int = 0,influx_precision::String = "ns",tzstr::String = "UTC",compress::Bool=false,printinfo::Bool=true)
     size(data,1) < 1 && throw(ArgumentError("DataFrame has zero rows"))
-    if batchsize <= 0         
+    #for some cases (size(data,1)==1) we do not perform batch processing
+    if (batchsize <= 0) || (size(data,1) <= batchsize) || (size(data,1) == 1)
         lp = lineprotocol(measurement,data,fields,timestamp,tags=tags,influx_precision=influx_precision,tzstr=tzstr,compress=compress)
         rs = write_data(settings,bucket,lp,"ns")
     else 

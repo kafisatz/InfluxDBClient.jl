@@ -41,6 +41,8 @@
     #no batches
     @time rs,lp = write_dataframe(settings=isettings,bucket=a_random_bucket_name,measurement="some_measurement",data=df,fields=["temperature","an_int_value","abool","humidity"],timestamp=:datetime,tags=["color","sensor_id"],influx_precision="s",tzstr="Europe/Berlin",compress=false,batchsize = 0);
 
+    #dataframe with one row only!
+    @time rs,lp = write_dataframe(settings=isettings,bucket=a_random_bucket_name,measurement="some_measurement",data=DataFrame(df[3:3,:]),fields=["temperature","an_int_value","abool","humidity"],timestamp=:datetime,tags=["color","sensor_id"],influx_precision="s",tzstr="Europe/Berlin",compress=false,batchsize = bs);
 ########################################################################
 #with compression
 #time to construct lp is linear in nn
