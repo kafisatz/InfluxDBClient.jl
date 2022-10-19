@@ -63,6 +63,7 @@ else
         include(joinpath("test","timezones.jl"))
         include(joinpath("test","query.jl"))
         include(joinpath("test","large_data.jl"))
+        include(joinpath("test","delete.jl"))
     =#
 end
 

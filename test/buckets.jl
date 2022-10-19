@@ -10,7 +10,7 @@
     #cleanup (if bucket exists from developping / testing)
     @show in(a_random_bucket_name,bucket_names)
     if in(a_random_bucket_name,bucket_names)
-        @test isnothing(delete_bucket(isettings,a_random_bucket_name))
+        @test 204 == delete_bucket(isettings,a_random_bucket_name)
     end
 
     #create bucket

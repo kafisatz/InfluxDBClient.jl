@@ -99,5 +99,9 @@ agg = """   aggregateWindow(every: 20m, fn: mean, createEmpty: false)
 datetime_str = string(minimum(df.datetime),"+02:00")
 df_result = query_flux(isettings,a_random_bucket_name,"xxmeasurment";tzstr = "Europe/Berlin",range=Dict("start"=>"$datetime_str"),fields=["temperature","humidity"],tags=Dict("sensor_id"=>"TLM0900"),aggregate=agg);
 
+#deleting measurements
+#see delete.jl in the tests folder
+
+#deleting a bucket
 delete_bucket(isettings,a_random_bucket_name)
 ```
