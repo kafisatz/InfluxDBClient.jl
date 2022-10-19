@@ -1,5 +1,5 @@
 #todo 
-#query_flux_raw(isettings,a_random_bucket_name,"my_meas",range=Dict("start"=>"-100d"))
+#query_flux_http_response(isettings,a_random_bucket_name,"my_meas",range=Dict("start"=>"-100d"))
 
 export query_flux
 
@@ -15,8 +15,7 @@ function query_flux(isettings,bucket,measurement;parse_datetime=false,datetime_p
     #tzstr is used to convert the datetime in Range to UTC
     tz = Dates.TimeZone(tzstr) #is of type TimeZone
     shift_datetime_to_utc(x) = DateTime(TimeZones.astimezone(TimeZones.ZonedDateTime(x, tz), utc_tz))
-    shift_datetime_to_local(x) = DateTime(TimeZones.astimezone(TimeZones.ZonedDateTime(x, utc_tz), tz))
-
+    
     #limitation / todo / tbd 
     #if range=-100d we DO NOT perform any modification of it!
 
@@ -36,16 +35,24 @@ function query_flux(isettings,bucket,measurement;parse_datetime=false,datetime_p
     end
 
     #perform query
-    bdy = query_flux_raw(isettings,bucket,measurement,range=rangeUTC,fields=fields,tags=tags,aggregate=aggregate)
+    bdy = query_flux_http_response(isettings,bucket,measurement,range=rangeUTC,fields=fields,tags=tags,aggregate=aggregate)
     
+    df = query_flux_postprocess_response(bdy,parse_datetime,datetime_precision,tz)
+return df 
+end 
+
+export query_flux_postprocess_response
+function query_flux_postprocess_response(bdy,parse_datetime,datetime_precision,tz)
+    shift_datetime_to_local(x) = DateTime(TimeZones.astimezone(TimeZones.ZonedDateTime(x, utc_tz), tz))
+
     #interpret as DataFrame 
     df = CSV.File(bdy) |> DataFrame
-    DataFrames.select!(df,Not(:Column1)) #unclear what this could/would be (let us drop it for now)
-
     #if there are zero rows, no need to parse anything
     if size(df,1) <= 0
         return df 
     end
+    
+    DataFrames.select!(df,Not(:Column1)) #unclear what this could/would be (let us drop it for now)
 
     if parse_datetime
         #parse time
@@ -101,8 +108,8 @@ function query_flux(isettings,bucket,measurement;parse_datetime=false,datetime_p
     return df 
 end
 
-export query_flux_raw 
-function query_flux_raw(isettings,bucket,measurement;range=Dict{String,Any}(),fields::Vector{String}=String[],tags=Dict{String,Any}(),aggregate::String="")
+export query_flux_http_response 
+function query_flux_http_response(isettings,bucket,measurement;range=Dict{String,Any}(),fields::Vector{String}=String[],tags=Dict{String,Any}(),aggregate::String="")
     #=
         df = DataFrame(_sensor_id = ["TLM0900","TLM0901","TLM0901"],other_tag=["m","m","x"] ,temperature = [73.1,55,22.0], humidity=[14.9,55.2,3], datetime = [some_dt,some_dt-Second(51),some_dt-Second(500)])
         lp = lineprotocol("my_meas",df,["temperature","humidity"], :datetime,compress = gzip_compression_is_enabled)
@@ -178,10 +185,20 @@ function query_flux_raw(isettings,bucket,measurement;range=Dict{String,Any}(),fi
     #TODO, implement range for function query_flux
     #TODO, implement tags for function query_flux
     #TODO, implement fields for function query_flux
-
-    hdrs = Dict("Authorization" => "Token $(INFLUXDB_TOKEN)", "Accept"=>"application/json","Content-Type"=>"application/vnd.flux; charset=utf-8")
-    hdrs["Content-Encoding"] = "identity"
     
+    rbody = query_flux(isettings,q)
+    return rbody
+
+#from(bucket: $(bucket))
+#    |> range(start: -1h)
+#    |> filter(fn: (r) => r._measurement == "example-measurement" and r.tag == "example-tag")
+#    |> filter(fn: (r) => r._field == "example-field")
+end 
+
+function query_flux(isettings,q::String)
+    @unpack INFLUXDB_HOST,INFLUXDB_TOKEN,INFLUXDB_ORG = isettings
+    
+    hdrs = Dict("Authorization" => "Token $(INFLUXDB_TOKEN)", "Accept"=>"application/json","Content-Type"=>"application/vnd.flux; charset=utf-8","Content-Encoding" => "identity")    
     url = """http://$(INFLUXDB_HOST)/api/v2/query?org=$INFLUXDB_ORG"""
     bdy = q
     #@show q
@@ -192,14 +209,7 @@ function query_flux_raw(isettings,bucket,measurement;range=Dict{String,Any}(),fi
     end
 
     return r.body
-
-#from(bucket: $(bucket))
-#    |> range(start: -1h)
-#    |> filter(fn: (r) => r._measurement == "example-measurement" and r.tag == "example-tag")
-#    |> filter(fn: (r) => r._field == "example-field")
-end 
-
-
+end
 #= 
 need to support both
 a) https://docs.influxdata.com/influxdb/v2.4/query-data/flux/

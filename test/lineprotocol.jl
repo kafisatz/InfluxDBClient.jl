@@ -25,7 +25,7 @@
     lp_want = "my_meas temperature=73.9,humidity=14.9 1664553573033000000\nmy_meas temperature=55.1,humidity=55.2 1664553522033000000\nmy_meas temperature=22.9,humidity=3.0 1664553073033000000"
     @test lp == lp_want
     @test 204 == write_data(isettings,a_random_bucket_name,lp,"ns")
-   
+
     #view of df
     lp2lines = lineprotocol("my_meas",view(df,1:2,:),["temperature","humidity"], :datetime)
     @test lp2lines == "my_meas temperature=73.9,humidity=14.9 1664553573033000000\nmy_meas temperature=55.1,humidity=55.2 1664553522033000000"
@@ -147,6 +147,60 @@
     @test rs == 204
 
     @test_throws UndefKeywordError write_dataframe(settings=isettings,measurement="xxmeasurment",data=df,fields=["humidity","temperature"],timestamp=:datetime,compress=false)
+
+
+
+    ################################################################################################################################################
+    #skipmissingvalues      
+    #note: this was originally a keyword. However, 'not skipping missing values' is not meaningful, thus skipping them is the default
+    ################################################################################################################################################
+    # write_dataframe(;settings,bucket,measurement,data,fields,timestamp,tags=String[],batchsize::Int = 0,influx_precision::String = "ns",tzstr::String = "UTC",compress::Bool=false,printinfo::Bool=true)
+    reset_bucket(isettings,a_random_bucket_name);
+
+    some_dt = DateTime(2022,9,30,15,59,33,33)
+    df = DataFrame(sensor_id = ["TLM0800","TLM0801","TLM0801"],other_tag=["m","m","x"] ,co2=[missing,missing,99.3],temperature = [73.1,missing,22.0], humidity=[14.9,55.2,3], datetime = [some_dt,some_dt-Second(51),some_dt-Second(500)])
+    datetime_str = string(minimum(df.datetime) - Day(100),"+02:00")
+    rw = df[1,:]
+    measurement = "miha"
+    timestamp = :datetime
+    fields=["humidity","temperature","co2"]
+    tagsSymbols=String[]
+    influx_precision="ns"
+    shift_datetime_to_utc(x) = DateTime(TimeZones.astimezone(TimeZones.ZonedDateTime(x, InfluxDBClient.utc_tz), InfluxDBClient.utc_tz))
+    # function create_lp(rw::DataFrameRow,measurement,timestamp,fields,tagsSymbols,influx_precision,shift_datetime_to_utc)
+    for i=1:size(df,1)
+        rw = df[i,:]
+        lp = create_lp(rw,measurement,timestamp,fields,tagsSymbols,influx_precision,shift_datetime_to_utc)
+        for f in fields 
+            oci = occursin(f,lp)
+            if ismissing(rw[f])
+                @test !oci
+            else 
+                @test oci            
+            end
+        end
+    end
+    
+    #write df
+    rs,lp = write_dataframe(settings=isettings,bucket=a_random_bucket_name,measurement=measurement,data=df,fields=fields,timestamp=:datetime,compress=false)
+    @test rs == 204
+    
+    
+        q="""from(bucket: "test_InfluxDBClient.jl_asdfeafdfasefsIyxdFDYfadsfasdfa____l")
+                |> range(start: $(datetime_str))
+                |> filter(fn: (r) => r["_measurement"] == "$(measurement)")
+                |> filter(fn: (r) => r["_field"] == "co2" or r["_field"] == "humidity" or r["_field"] == "temperature")
+                |> aggregateWindow(every: 1s, fn: mean, createEmpty: false)
+                |> yield(name: "mean")"""
+        bdy = query_flux(isettings,q)
+        dfres = query_flux_postprocess_response(bdy,false,"ns",InfluxDBClient.utc_tz)
+        
+    f = fields[1]
+    for f in fields
+        expected_rows = sum(.!ismissing.(df[!,f]))
+        size_of_df_query_result = size(filter(x->x._field == f,dfres),1)
+        @test size_of_df_query_result == expected_rows
+    end
 
    #"Todo - We may want to add a test for each note in the 'Manual', e.g. Line protocol does not support the newline character \n in tag or field values.")
    #e.g. 

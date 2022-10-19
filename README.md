@@ -27,7 +27,7 @@ There are three optoins to configure the database access (see function `get_sett
 
 ## Limitations
 * **Not all functions account for TimeZones in a proper manner**! Notably DateTime in Julia Base/Core (Pkg Dates) cannot handle nanosecond percision. The Pkg NanoDates in contrast cannot handle TimeZones.
-* The functions are quite slow for large DataFrames. I am open for suggestions on how to improve my string handling in Julia.
+* Some of the functions may be somewhat slow for large DataFrames. I am open for suggestions on how to improve my string handling in Julia.
 * Backslashes and special characters in strings may not (yet) be parsed correctly. https://docs.influxdata.com/influxdb/v2.4/reference/syntax/line-protocol/#integer 
 * Some bucket management functions (`get_buckets` etc) assume that you have fewer than 100 buckets. Functions may fail otherwise. See keywords limit and offset. 
 * When data is provided integer valued, InfluxDB will display the result as float, when an aggregation function (such as mean) is selected. Select 'last' or similar to show the data as is.
@@ -92,8 +92,12 @@ rs = write_data(isettings,a_random_bucket_name,lp_gzip_compressed,"ns")
 rs,lp = write_dataframe(settings=isettings,bucket=a_random_bucket_name,measurement="xxmeasurment",data=df,fields=["humidity","temperature"],timestamp=:datetime,tags=String["sensor_id"],tzstr = "Europe/Berlin",compress=true);
 
 #querying 
-#consider the function `query_flux` to query data, see runtests.jl for example calls
+#note that the agg keyword is optional
+#consider calls in runtests.jl for more exmaples (i.e. search this repository for "query_flux(")
+agg = """   aggregateWindow(every: 20m, fn: mean, createEmpty: false)
+                |> yield(name: "mean") """    
+datetime_str = string(minimum(df.datetime),"+02:00")
+df_result = query_flux(isettings,a_random_bucket_name,"xxmeasurment";tzstr = "Europe/Berlin",range=Dict("start"=>"$datetime_str"),fields=["temperature","humidity"],tags=Dict("sensor_id"=>"TLM0900"),aggregate=agg);
 
 delete_bucket(isettings,a_random_bucket_name)
-
 ```

@@ -91,7 +91,7 @@ function lineprotocol(measurement::String,df::AbstractDataFrame,fields0::Union{V
                 #add linebreak
                 append!(lp,transcode(codec, "\n"))
 
-                lpstr_thisrow = create_lp(df[i,:],measurement,timestamp,fields,tagsSymbols,influx_precision,shift_datetime_to_utc)                
+                lpstr_thisrow = create_lp(df[i,:],measurement,timestamp,fields,tagsSymbols,influx_precision,shift_datetime_to_utc)         
                 data = transcode(codec, lpstr_thisrow)
                 #add data to UInt8 array
                 append!(lp,data)
@@ -127,8 +127,13 @@ function create_lp(rw::DataFrameRow,measurement,timestamp,fields,tagsSymbols,inf
     #myMeasurement fieldKey=12485903u unsigned INT
 
     #fstr = join(map(t->string(t,"=",rw[t]),fields),",")
-    fstr = join(map(t->string(t,"=",lp_formatted_field_value(rw[t])),fields),",")
-
+    if any(ismissing,rw)
+        #NOTE: we skip columns where the data is missing!
+        fstr = join(map(t->string(t,"=",lp_formatted_field_value(rw[t])),Iterators.filter(f->!ismissing(rw[f]),fields)),",")
+        #fstr = join(map(t->string(t,"=",lp_formatted_field_value(rw[t])),filter(f->!ismissing(rw[f]),fields)),",")
+    else 
+        fstr = join(map(t->string(t,"=",lp_formatted_field_value(rw[t])),fields),",")
+    end
     #timestamp
     ts = get_milliseconds(shift_datetime_to_utc(rw[timestamp]))
     if influx_precision != "ms"
@@ -147,6 +152,7 @@ function create_lp(rw::DataFrameRow,measurement,timestamp,fields,tagsSymbols,inf
     return lpstr
 end
 
+#export lp_formatted_field_value
 lp_formatted_field_value(v::T) where {T<:AbstractFloat} = v
 lp_formatted_field_value(v::T) where {T<:Signed} = string(v,"i")
 lp_formatted_field_value(v::T) where {T<:Unsigned} = string(v,"u")

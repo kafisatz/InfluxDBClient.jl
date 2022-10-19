@@ -25,8 +25,6 @@ for gzip_compression_is_enabled in [false,true]
     rs = write_data(isettings,a_random_bucket_name,payload,"ns",compress=gzip_compression_is_enabled)
     @test rs == 204
 
-    PRECISIONS
-
     #passing wrong influx_precision (second, us, ms) as influx_precision will fail
     payload = """myMeasurement,tag1=value1,tag2=value2 fieldKey="fieldValue" 1556813561098000000"""
     @test_throws HTTP.Exceptions.StatusError write_data(isettings,a_random_bucket_name,payload,"s",compress=gzip_compression_is_enabled)
@@ -57,12 +55,59 @@ for gzip_compression_is_enabled in [false,true]
     #multiline payload
     ########################################################################################
     payload = """airSensors,sensor_id=TLM0201 temperature=73.97038159354763,humidity=35.23103248356096,co=0.48445310567793615 1630424257000000000
-                airSensors,sensor_id=TLM0202 temperature=75.30007505999716,humidity=35.651929918691714,co=0.5141876544505826 1630424257000000000
+                airSensors,sensor_id=TLM0202 temperature=75.30007505999716,humidity=35.651929918691714,co=0.5141876544505826 1630424247000000000
                 airSensors,sensor_id=TLM0202 temperature=70.30007505999716,humidity=45.651929918691714,co=0.7141876544505826 1630424258000000000
                 airSensors,sensor_id=TLM0202 temperature=72.30007505999716,humidity=30.651929918691714,co=0.6141876544505826 1630424259000000000"""
 
     rs = write_data(isettings,a_random_bucket_name,payload,"ns",compress=gzip_compression_is_enabled)
     @test rs == 204
+
+    ########################################################################################
+    #multiline payload with "missing" value for certain "columns"
+    ########################################################################################
+    reset_bucket(isettings,a_random_bucket_name);
+    #4 values for temp, 3 value for humidity, 2 values for co2
+    payload = """airSensors,sensor_id=TLM0201 temperature=73.97038159354763,humidity=35.23103248356096,co=0.48445310567793615 1630524257000000000
+                airSensors,sensor_id=TLM0202 temperature=75.30007505999716,humidity=35.651929918691714 1630524247000000000
+                airSensors,sensor_id=TLM0202 temperature=70.30007505999716,humidity=45.651929918691714,co=0.7141876544505826 1630524258000000000
+                airSensors,sensor_id=TLM0202 temperature=72.30007505999716 1630524259000000000"""
+
+    rs = write_data(isettings,a_random_bucket_name,payload,"ns",compress=gzip_compression_is_enabled)
+    @test rs == 204
+
+    datetime_str = string(DateTime(2000,9,30,15,59,33,0)-Hour(100),"+00:00")
+        q="""from(bucket: "test_InfluxDBClient.jl_asdfeafdfasefsIyxdFDYfadsfasdfa____l")
+        |> range(start: $(datetime_str))
+        |> filter(fn: (r) => r["_measurement"] == "airSensors")
+        |> filter(fn: (r) => r["_field"] == "co")
+        |> aggregateWindow(every: 1s, fn: last, createEmpty: false)
+        |> yield(name: "mean")"""
+    bdy = query_flux(isettings,q)
+    df = query_flux_postprocess_response(bdy,false,"ns",InfluxDBClient.utc_tz)
+    @test size(df,1) == 2 
+
+        q="""from(bucket: "test_InfluxDBClient.jl_asdfeafdfasefsIyxdFDYfadsfasdfa____l")
+            |> range(start: $(datetime_str))
+            |> filter(fn: (r) => r["_measurement"] == "airSensors")
+            |> filter(fn: (r) => r["_field"] == "temperature")
+            |> aggregateWindow(every: 1s, fn: last, createEmpty: false)
+            |> yield(name: "mean")"""
+        bdy = query_flux(isettings,q)
+    df = query_flux_postprocess_response(bdy,false,"ns",InfluxDBClient.utc_tz)
+    @test size(df,1) == 4
+
+    q="""from(bucket: "test_InfluxDBClient.jl_asdfeafdfasefsIyxdFDYfadsfasdfa____l")
+        |> range(start: $(datetime_str))
+        |> filter(fn: (r) => r["_measurement"] == "airSensors")
+        |> filter(fn: (r) => r["_field"] == "humidity")
+        |> aggregateWindow(every: 1s, fn: last, createEmpty: false)
+        |> yield(name: "mean")"""
+    bdy = query_flux(isettings,q)
+    df = query_flux_postprocess_response(bdy,false,"ns",InfluxDBClient.utc_tz)
+    @test size(df,1) == 3
+
+    #df2 = query_flux(isettings,a_random_bucket_name,"airSensors";range=Dict("start"=>"$datetime_str"),fields=["temperature","humidity"],tags=Dict("color"=>"blue"),aggregate=agg);
+   
 
     #invalid payload type
     @test_throws MethodError write_data(isettings,a_random_bucket_name,Int[1,3,5],"ms",compress=gzip_compression_is_enabled)
