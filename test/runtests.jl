@@ -4,7 +4,7 @@ using Test, UnPack, DataFrames, Dates, Aqua
 import JSON3, HTTP, CodecZlib, TimeZones, Random, CSV
 using BenchmarkTools, StatsBase
 
-#bucket name for testing puroses 
+#bucket name for testing purposes
 #Note: this bucket will be created and deleted several times. Hopefully you don't have this bucket name with real data :) 
 a_random_bucket_name = "test_InfluxDBClient.jl_asdfeafdfasefsIyxdFDYfadsfasdfa____l"
 
