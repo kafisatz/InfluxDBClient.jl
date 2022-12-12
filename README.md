@@ -44,7 +44,7 @@ See also https://docs.influxdata.com/influxdb/cloud/api/.
 
 ## Example 
 
-```
+```julia
 using InfluxDBClient
 using Dates
 using DataFrames
