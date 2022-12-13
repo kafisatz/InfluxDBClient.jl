@@ -19,8 +19,12 @@ end
 
 #smoketest 1 to see if DB is up
 #a get request to """http://$(INFLUXDB_HOST)/metrics""" is another possibility to check if the server is up
-r = HTTP.request("GET", """http://$(isettings["INFLUXDB_HOST"])/metrics""",status_exception = false)
-@test in(r.status,[200,403])
+try 
+    r = HTTP.request("GET", """http://$(isettings["INFLUXDB_HOST"])/metrics""",status_exception = false)
+    @test in(r.status,[200,403])
+catch 
+    @test false
+end
 #maybe status is 200 when metrics are ENABLED and status is 403 when metrics are DISABLED
 
 #smoketest 2 to see if DB is up
