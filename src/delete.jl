@@ -36,10 +36,10 @@ function delete(isettings,bucket::String;measurement::String="",start::Union{Dat
 
     #"_measurement = airSensors and sensor_id=TLM0201",
 
-    if !iszero(length(measurement)) || length(tags) > 0
+    if !isempty(measurement) || !isempty(tags)
         di = deepcopy(tags)
-        if !iszero(length(measurement))
-            di["_measurement"] = measurement
+        if !isempty(measurement)
+            di["_measurement"] = "\\\"$measurement\\\""
         end
         conditions = join([string(k, " = ",v) for (k,v) = di]," and ")
         #note the comma which needs to be inserted!
