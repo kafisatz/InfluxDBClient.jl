@@ -33,8 +33,7 @@ bucket_names,json = try
     try 
         get_buckets(isettings); #1.7 ms btime, (influxdb host is on a different machine)
     catch er 
-        @show er 
-        
+        @show er
     end
 catch 
     "","";
@@ -44,16 +43,16 @@ end;
 prefix = ifelse(isinteractive() , "test/", "")
 include(string(prefix,"functions.jl"))
 
-nmax_repeat_selected_query_tests = (haskey(ENV,"USERPROFILE")&&endswith(ENV["USERPROFILE"],"konig")) ? 2 : 20
+nmax_repeat_selected_query_tests = 2 #(haskey(ENV,"USERPROFILE")&&endswith(ENV["USERPROFILE"],"konig")) ? 2 : 20
 #see NOTE99831 for motivation of nmax
-#testing showed that influxdb does not always return the very same values
+#preliminary testing showed that influxdb does not always return the very same values
 
 if !(length(bucket_names) > 0 )
     @warn("InfluxDB is not reachable. No tests will be performed.")
 else
     @info("InfluxDB seems to be reachable. Running tests...")    
-        
-    testfis = ["settings.jl","buckets.jl","write.jl","lineprotocol.jl","timezones.jl","query.jl","large_data.jl"]
+
+    testfis = ["settings.jl","buckets.jl","write.jl","lineprotocol.jl","timezones.jl","query.jl","special_chars_in_meas_name.jl","large_data.jl"]
     for tf in testfis
         isfile(tf) && include(tf)
         tf2 = joinpath("test",tf)

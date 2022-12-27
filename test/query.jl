@@ -70,7 +70,7 @@
     ######################################################
     for _ in 1:nmax_repeat_selected_query_tests
         for selected_precision in reverse(PRECISIONS)
-            @info("Query (query_flux_http_response) - Testing percision roundtrip for precision = $(selected_precision)...")
+            @info("Query (query_flux_http_response) - Testing precision roundtrip for precision = $(selected_precision)...")
             #define data
                 ns_ts_int = 1556813561698123456
                 dt = Dates.unix2datetime(trunc(div(ns_ts_int,PRECISION_DICT["s"])))
@@ -125,7 +125,7 @@
                 else 
                     dfus = generate_data_ms(10000) #do not change the number, otherwise data will change!
                 end
-                @info("Query (query_flux) - Testing percision roundtrip for precision = $(selected_precision) and tz=$(someTz)...")
+                @info("Query (query_flux) - Testing precision roundtrip for precision = $(selected_precision) and tz=$(someTz)...")
 
                 lp = lineprotocol("my_meas$(selected_precision)",dfus,["temperature"],tags=["color","sensor_id"], :datetime,compress = false,tzstr = someTz,influx_precision=selected_precision);
                 if someTz == "UTC"

@@ -48,7 +48,7 @@ function delete(isettings,bucket::String;measurement::String="",start::Union{Dat
     
     #close bracket
     bdy = string(bdy,"}")
-    @show bdy
+    #@show bdy
 
     #validate json structure 
     #if this call fails, the HTTP request will likely fail too

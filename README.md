@@ -24,7 +24,7 @@ There are three optoins to configure the database access (see function `get_sett
 3) provide a space delimited file to `get_settings`
 
 ## Limitations
-* **Not all functions account for TimeZones in a proper manner**! Notably DateTime in Julia Base/Core (Pkg Dates) cannot handle nanosecond percision. The Pkg NanoDates in contrast cannot handle TimeZones.
+* **Not all functions account for TimeZones in a proper manner**! Notably DateTime in Julia Base/Core (Pkg Dates) cannot handle nanosecond precision. The Pkg NanoDates in contrast cannot handle TimeZones.
 * Some of the functions may be somewhat slow for large DataFrames. I am open for suggestions on how to improve my string handling in Julia.
 * Backslashes and special characters in strings may not (yet) be parsed correctly. https://docs.influxdata.com/influxdb/v2.4/reference/syntax/line-protocol/#integer 
 * Some bucket management functions (`get_buckets` etc) assume that you have fewer than 100 buckets. Functions may fail otherwise. See keywords limit and offset. 
