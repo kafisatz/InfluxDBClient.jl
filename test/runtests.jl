@@ -20,22 +20,26 @@ end
 #smoketest 1 to see if DB is up
 #a get request to """http://$(INFLUXDB_HOST)/metrics""" is another possibility to check if the server is up
 try 
-    r = HTTP.request("GET", """http://$(isettings["INFLUXDB_HOST"])/metrics""",status_exception = false)
+    metrics_url = """http://$(isettings["INFLUXDB_HOST"])/metrics"""
+    @info("Trying to query $(metrics_url)...")
+    r = HTTP.request("GET", metrics_url,status_exception = false)
+    #maybe status is 200 when metrics are ENABLED and status is 403 when metrics are DISABLED
     @test in(r.status,[200,403])
+    @info("Status is $(r.status)")
+    @info("Body is $(String(r.body))")
 catch 
     @warn("failed to query: http://$(isettings["INFLUXDB_HOST"])/metrics")
 end
-#maybe status is 200 when metrics are ENABLED and status is 403 when metrics are DISABLED
 
 #smoketest 2 to see if DB is up
 #https://docs.influxdata.com/influxdb/v2.4/write-data/developer-tools/api/
 bucket_names,json = try
-    try 
+    try
         get_buckets(isettings); #1.7 ms btime, (influxdb host is on a different machine)
-    catch er 
+    catch er
         @show er
     end
-catch 
+catch
     "","";
 end;
 @test length(bucket_names) > 0
