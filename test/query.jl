@@ -67,18 +67,15 @@
 
     datetime_str0 = string(DateTime(2022,9,30,15,59,33,0)-Hour(100),"+00:00")
     df2 = query_flux(isettings,a_random_bucket_name,"my_meas";tzstr = "Europe/Berlin",range=Dict("start"=>adt),fields=["temperature","humidity"],tags=Dict("color"=>"blue"),aggregate=agg);
-    @show df2
     @test size(df2) == (28,10)
 
     df2 = query_flux(isettings,a_random_bucket_name,"my_meas";tzstr = "Europe/Berlin",range=Dict("start"=>adt, "stop"=>adt+Minute(21)),fields=["temperature","humidity"],tags=Dict("color"=>"blue"),aggregate=agg);
-    @show df2
     @test size(df2) == (12,10)
 
-
-
-    ######################################################
+    
     ######################################################
     #parsing DateTime
+    ######################################################
     for _ in 1:nmax_repeat_selected_query_tests
         for selected_precision in reverse(PRECISIONS)
             @info("Query (query_flux_http_response) - Testing precision roundtrip for precision = $(selected_precision)...")

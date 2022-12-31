@@ -33,7 +33,6 @@ function query_flux(isettings,bucket,measurement;parse_datetime=false,datetime_p
             rangeUTC[k] = v
         end
     end
-    @show rangeUTC
 
     #perform query
     bdy = query_flux_http_response(isettings,bucket,measurement,range=rangeUTC,fields=fields,tags=tags,aggregate=aggregate)
@@ -137,7 +136,7 @@ function query_flux_http_response(isettings,bucket,measurement;range=Dict{String
             end
             count += 1
         end
-        @show rngstr = string("range(",rngstr,")")
+        rngstr = string("range(",rngstr,")")
     end
     
     q = """from(bucket: "$(bucket)")"""
