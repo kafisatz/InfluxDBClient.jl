@@ -103,3 +103,36 @@ df_result = query_flux(isettings,a_random_bucket_name,"xxmeasurment";tzstr = "Eu
 #deleting a bucket
 delete_bucket(isettings,a_random_bucket_name)
 ```
+
+## Running tests
+
+First make sure you have the following environment variables defined:
+
+```Julia
+ENV["INFLUXDB_HOST"]="localhost:8086"
+ENV["INFLUXDB_ORG"]="<some org>"
+ENV["INFLUXDB_TOKEN"]="5Ixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=="
+ENV["INFLUXDB_USER"]="<admin user>"
+ENV["INFLUXDB_PASSWORD"]="<password>"
+```
+
+With newer influx versions, it can be hard to get an admin user that can create and drop buckets
+`sudo influx auth create --all-access -u <admin user> -o <some org>`
+For more information, see: <https://github.com/influxdata/influx-cli/issues/231>
+
+The easiest is to run via `]test` or `Pkg.test()`
+
+But in order to run `runtests.jl` or individual tests manually you need to activate the test dependencies,
+and since this is still has Julia 1 compatibility, we need to use the following method:
+
+```Julia
+]activate
+using TestEnv
+TestEnv.activate("InfluxDBClient")
+```
+
+For more information, see: 
+    <https://discourse.julialang.org/t/activating-test-dependencies/48121/10>
+    <https://github.com/JuliaTesting/TestEnv.jl>
+
+also had to modify runtents.jl line 47 to not add "test/"

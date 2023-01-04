@@ -126,14 +126,15 @@ function query_flux_http_response(isettings,bucket,measurement;range=Dict{String
         count = 0
         for (k,v) in range
             if count > 0 
-                rngstr = string(rngstr," and ")
+                rngstr *= ", "
             end
             #if v is a Date or DateTime add "+00:00" (UTC)
             if typeof(v) <: Dates.AbstractTime
-                rngstr = string(k,": ",v,"+00:00")
+                rngstr *= string(k,": ", v, "Z")
             else
-                rngstr = string(k,": ",v)
+                rngstr *= string(k,": ", v)
             end
+            count += 1
         end
         rngstr = string("range(",rngstr,")")
     end
