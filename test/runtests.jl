@@ -1,8 +1,15 @@
+#=
+using Pkg;
+Pkg.activate(".")
+using TestEnv
+TestEnv.activate()
+=#
+
 using InfluxDBClient
 using Test, UnPack, DataFrames, Dates, Aqua
-#using NanoDates
 import JSON3, HTTP, CodecZlib, TimeZones, Random, CSV
-using BenchmarkTools, StatsBase
+using StatsBase
+#using BenchmarkTools
 
 #bucket name for testing purposes
 #Note: this bucket will be created and deleted several times. Hopefully you don't have this bucket name with real data :) 
@@ -27,8 +34,9 @@ try
     @test in(r.status,[200,403])
     @info("Status is $(r.status)")
     @info("Body is $(String(r.body))")
-catch 
+catch er
     @warn("failed to query: http://$(isettings["INFLUXDB_HOST"])/metrics")
+    @show er
 end
 
 #smoketest 2 to see if DB is up
@@ -56,7 +64,9 @@ if !(length(bucket_names) > 0 )
 else
     @info("InfluxDB seems to be reachable. Running tests...")    
 
-    testfis = ["settings.jl","buckets.jl","write.jl","lineprotocol.jl","timezones.jl","query.jl","special_chars_in_meas_name.jl","large_data.jl"]
+    testfld = normpath(joinpath(pathof(InfluxDBClient),"..","..","test"))
+    testfis = sort(setdiff(filter(x->endswith(x,".jl"),readdir(testfld)),["functions.jl","runtests.jl"]))
+    #testfis = sort(["settings.jl","buckets.jl","write.jl","lineprotocol.jl","timezones.jl","query.jl","special_chars_in_meas_name.jl","large_data.jl","delete.jl","metadata.jl"])
     for tf in testfis
         isfile(tf) && include(tf)
         tf2 = joinpath("test",tf)

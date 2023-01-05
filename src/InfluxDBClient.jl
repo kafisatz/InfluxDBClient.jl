@@ -42,4 +42,6 @@ global const utc_tz = TimeZones.TimeZone("UTC")
 
     include("delete.jl")
 
+    include("metadata.jl")
+
 end
