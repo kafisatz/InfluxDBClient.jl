@@ -52,6 +52,10 @@ function query_flux_postprocess_response(bdy,parse_datetime,datetime_precision,t
         return df 
     end
     
+    # influx sometimes returns extra header rows that ends up in our data :'(
+    # https://docs.influxdata.com/influxdb/v2.3/reference/syntax/annotated-csv/?t=Different+schema#csv-response-format
+    filter!(:_time => !=("_time"), df)
+    
     DataFrames.select!(df,Not(:Column1)) #unclear what this could/would be (let us drop it for now)
 
     if parse_datetime
