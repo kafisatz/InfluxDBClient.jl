@@ -118,7 +118,7 @@ function query_flux_http_response(isettings,bucket,measurement;range=Dict{String
         measurement = "my_meas"
     =#
 
-    @unpack INFLUXDB_HOST,INFLUXDB_TOKEN,INFLUXDB_ORG = isettings
+    @unpack INFLUXDB_URL,INFLUXDB_TOKEN,INFLUXDB_ORG = isettings
     
     #@assert length(range) > 0 #I think this may be necessary for any query...
     rngstr = ""
@@ -197,10 +197,10 @@ function query_flux_http_response(isettings,bucket,measurement;range=Dict{String
 end 
 
 function query_flux(isettings,q::String)
-    @unpack INFLUXDB_HOST,INFLUXDB_TOKEN,INFLUXDB_ORG = isettings
+    @unpack INFLUXDB_URL,INFLUXDB_TOKEN,INFLUXDB_ORG = isettings
     
     hdrs = Dict("Authorization" => "Token $(INFLUXDB_TOKEN)", "Accept"=>"application/json","Content-Type"=>"application/vnd.flux; charset=utf-8","Content-Encoding" => "identity")    
-    url = """http://$(INFLUXDB_HOST)/api/v2/query?org=$INFLUXDB_ORG"""
+    url = """$(INFLUXDB_URL)/api/v2/query?org=$INFLUXDB_ORG"""
     bdy = q
     #@show q
 

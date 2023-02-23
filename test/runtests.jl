@@ -25,9 +25,9 @@ end
 @test length(a_random_bucket_name) > 0
 
 #smoketest 1 to see if DB is up
-#a get request to """http://$(INFLUXDB_HOST)/metrics""" is another possibility to check if the server is up
+#a get request to """$(INFLUXDB_URL)/metrics""" is another possibility to check if the server is up
 try 
-    metrics_url = """http://$(isettings["INFLUXDB_HOST"])/metrics"""
+    metrics_url = """http://$(isettings["INFLUXDB_URL"])/metrics"""
     @info("Trying to query $(metrics_url)...")
     r = HTTP.request("GET", metrics_url,status_exception = false)
     #maybe status is 200 when metrics are ENABLED and status is 403 when metrics are DISABLED
@@ -35,7 +35,7 @@ try
     @info("Status is $(r.status)")
     @info("Body is $(String(r.body))")
 catch er
-    @warn("failed to query: http://$(isettings["INFLUXDB_HOST"])/metrics")
+    @warn("failed to query: http://$(isettings["INFLUXDB_URL"])/metrics")
     @show er
 end
 
@@ -52,7 +52,7 @@ catch
 end;
 @test length(bucket_names) > 0
 @show bucket_names
-prefix = ifelse(isinteractive() , "test/", "")
+prefix = ifelse(isinteractive() , "", "")
 include(string(prefix,"functions.jl"))
 
 nmax_repeat_selected_query_tests = 2 #(haskey(ENV,"USERPROFILE")&&endswith(ENV["USERPROFILE"],"konig")) ? 2 : 20

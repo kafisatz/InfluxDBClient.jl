@@ -9,12 +9,12 @@ function delete(isettings,bucket::String;measurement::String="",start::Union{Dat
     #=
          bucket = a_random_bucket_name
     =#
-    @unpack INFLUXDB_HOST,INFLUXDB_TOKEN,INFLUXDB_ORG = isettings
+    @unpack INFLUXDB_URL,INFLUXDB_TOKEN,INFLUXDB_ORG = isettings
     organization_names,jsonORG = get_organizations(isettings)
     ORG_ID = get_orgid(jsonORG,INFLUXDB_ORG)
 
     hdrs = Dict("Authorization" => "Token $(INFLUXDB_TOKEN)", "Content-Type"=>"application/json")
-    url = """http://$(INFLUXDB_HOST)/api/v2/delete?org=$INFLUXDB_ORG&bucket=$bucket"""
+    url = """$(INFLUXDB_URL)/api/v2/delete?org=$INFLUXDB_ORG&bucket=$bucket"""
 
     if isa(start,DateTime) 
         start = string(start,"Z")

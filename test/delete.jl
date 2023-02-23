@@ -18,13 +18,13 @@ curl --request POST http://localhost:8086/api/v2/delete?org=example-org&bucket=e
 
     #buckets,_ = get_buckets(isettings;limit=100,offset=0)
     bucket = a_random_bucket_name
-    @unpack INFLUXDB_HOST,INFLUXDB_TOKEN,INFLUXDB_ORG = isettings
+    @unpack INFLUXDB_URL,INFLUXDB_TOKEN,INFLUXDB_ORG = isettings
     organization_names,jsonORG = get_organizations(isettings)
     ORG_ID = get_orgid(jsonORG,INFLUXDB_ORG)
     gzip_compression_is_enabled = false
 
     hdrs = Dict("Authorization" => "Token $(INFLUXDB_TOKEN)", "Content-Type"=>"application/json")
-    url = """http://$(INFLUXDB_HOST)/api/v2/delete?org=$INFLUXDB_ORG&bucket=$bucket"""
+    url = """$(INFLUXDB_URL)/api/v2/delete?org=$INFLUXDB_ORG&bucket=$bucket"""
     content = """{"name": "$bucket", "orgID": "$ORG_ID"}"""
     
     payload_to_write = """airSensors,sensor_id=TLM0201 temperature=73.97038159354763,humidity=35.23103248356096,co=0.48445310567793615 1630424257000000000
