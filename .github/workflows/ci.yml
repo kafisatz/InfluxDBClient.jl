@@ -16,6 +16,7 @@ jobs:
       matrix:
         version:
           - '1.8'
+          - '1'
           #- '1.6' # automatically expands to the latest stable 1.6.x release of Julia
           #1.6 is failing on some of the roundtrip checks (ms / UTC)
           - 'nightly'
