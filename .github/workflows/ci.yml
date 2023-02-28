@@ -1,7 +1,6 @@
 #influx command to create all access token - > then write to env variable.
 #influx auth create --org my-org --all-access
-#
-# 
+ 
 name: CI
 on:
   pull_request:
@@ -17,7 +16,7 @@ jobs:
       matrix:
         version:
           - '1.8'
-          - '1' # automatically expands to the latest stable 1.x release of Julia
+          - '1.6' # automatically expands to the latest stable 1.6.x release of Julia
           - 'nightly'
         os:
           - ubuntu-latest
@@ -32,7 +31,7 @@ jobs:
       # Label used to access the service container
       influxdb:
         # Docker Hub image
-        image: influxdb:2.4
+        image: influxdb:2.4 #currently we are using 2.4 for testing purposes
         # Provide the password 
         env:
           DOCKER_INFLUXDB_INIT_MODE: setup
@@ -42,7 +41,7 @@ jobs:
           DOCKER_INFLUXDB_INIT_BUCKET: some_bucket
           DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${{ secrets.INFLUXDB_TOKEN }}
         ports:
-          # Maps tcp port 5432 on service container to the host
+          # Maps tcp port on service container to the host
           - 8086:8086
 
     steps:    
@@ -59,8 +58,8 @@ jobs:
           JULIA_NUM_THREADS: 4          
           #must include PORT too here:
           #The hostname of the PostgreSQL service is the label you configured in your workflow, in this case, postgres. Because Docker containers on the same user-defined bridge network open all ports by default, you'll be able to access the service container on the default PostgreSQL port 5432.
-          #INFLUXDB_HOST: localhost:8086
           INFLUXDB_HOST: localhost:8086
+          INFLUXDB_URL: http://localhost:8086
           INFLUXDB_ORG: ${{ secrets.INFLUXDB_ORG }}
           INFLUXDB_USER: ${{ secrets.INFLUXDB_USER }}
           INFLUXDB_PASSWORD: ${{ secrets.INFLUXDB_PASSWORD }}
