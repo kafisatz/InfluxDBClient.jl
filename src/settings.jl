@@ -44,16 +44,11 @@ function _update_setting_keys(isettings::Dict{String,String})
     delete!(isettings, "INFLUXDB_HOST")
     
     isettings["INFLUXDB_ORG"] = replace(isettings["INFLUXDB_ORG"], " " => "%20") 
-    isettings
+    return isettings
 end
 
 export get_settings_from_file
 function get_settings_from_file(;file="")
-    #=
-    
-    fi = raw"
-    =#
-
     isettings = Dict{String,String}()
 
     @show file

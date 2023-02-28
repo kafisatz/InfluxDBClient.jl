@@ -46,6 +46,7 @@ bucket_names,json = try
         get_buckets(isettings); #1.7 ms btime, (influxdb host is on a different machine)
     catch er
         @show er
+        "","";
     end
 catch
     "","";
