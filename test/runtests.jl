@@ -33,7 +33,10 @@ try
     #maybe status is 200 when metrics are ENABLED and status is 403 when metrics are DISABLED
     @test in(r.status,[200,403])
     @info("Status is $(r.status)")
-    @info("Body is $(String(r.body))")
+    strbdy = String(r.body)
+    if length(strbdy) < 200
+        @info("Body is $(String(r.body))")
+    end
 catch er
     @warn("failed to query: $(isettings["INFLUXDB_URL"])/metrics")
     @show er
