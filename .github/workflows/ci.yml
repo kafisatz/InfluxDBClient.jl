@@ -42,7 +42,7 @@ jobs:
           DOCKER_INFLUXDB_INIT_BUCKET: some_bucket
           DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${{ secrets.INFLUXDB_TOKEN }}
         ports:
-          # Maps tcp port 5432 on service container to the host
+          # Maps tcp port on service container to the host
           - 8086:8086
 
     steps:    
