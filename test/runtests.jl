@@ -41,18 +41,14 @@ end
 
 #smoketest 2 to see if DB is up
 #https://docs.influxdata.com/influxdb/v2.4/write-data/developer-tools/api/
-bucket_names,json = try
-    try
-        get_buckets(isettings); #1.7 ms btime, (influxdb host is on a different machine)
-    catch er
-        @show er
-        "","";
-    end
-catch
-    "","";
-end;
-@test length(bucket_names) > 0
-@show bucket_names
+try
+    bucket_names, json = get_buckets(isettings); #1.7 ms btime, (influxdb host is on a different machine)
+    @test length(bucket_names) > 0
+    @show bucket_names
+catch er
+    @warn("failed to get list of buckets. InfluxDB may not be reachable.")
+    @show er
+end
 prefix = ifelse(isinteractive() , "test/", "")
 include(string(prefix,"functions.jl"))
 
