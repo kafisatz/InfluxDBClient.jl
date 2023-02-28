@@ -33,7 +33,7 @@ jobs:
       # Label used to access the service container
       influxdb:
         # Docker Hub image
-        image: influxdb
+        image: influxdb:2.4 #currently we are using 2.4 for testing purposes
         # Provide the password 
         env:
           DOCKER_INFLUXDB_INIT_MODE: setup
