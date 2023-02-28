@@ -5,7 +5,7 @@ using DataFrames
 a_random_bucket_name = "test_InfluxDBClient.jl_asdfeafdfasefsIyxdFDYfadsfasdfa____l"
 
 #isettings should return a NamedTuple similar to 
-#(INFLUXDB_HOST = "10.14.15.10:8086", INFLUXDB_ORG = "bk", INFLUXDB_TOKEN = "5Ixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==")
+#(INFLUXDB_URL = "http://10.14.15.10:8086", INFLUXDB_ORG = "bk", INFLUXDB_TOKEN = "5Ixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==")
 isettings = get_settings()
 
 #check if the InfluxDB is reachable

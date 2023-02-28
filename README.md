@@ -19,7 +19,9 @@ There are three optoins to configure the database access (see function `get_sett
 1) environment variables
 * ENV["INFLUXDB_ORG"] the organization
 * ENV["INFLUXDB_TOKEN"] the token to access the InfluxDB
-* ENV["INFLUXDB_HOST"] should include the port, e.g. "10.14.15.10:8086"
+* ENV["INFLUXDB_URL"] should include protocol and the port, e.g. "http://10.14.15.10:8086"
+  or with https e.g. `ENV["INFLUXDB_URL"]="https://us-east-1-1.aws.cloud2.influxdata.com:443"`
+
 2) keyword argumetns to `get_settings`
 3) provide a space delimited file to `get_settings`
 
@@ -52,7 +54,7 @@ using DataFrames
 a_random_bucket_name = "test_InfluxDBClient.jl_asdfeafdfasefsIyxdFDYfadsfasdfa____l"
 
 #isettings should return a NamedTuple similar to 
-#(INFLUXDB_HOST = "10.14.15.10:8086", INFLUXDB_ORG = "bk", INFLUXDB_TOKEN = "5Ixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==")
+#(INFLUXDB_URL = "http://10.14.15.10:8086", INFLUXDB_ORG = "bk", INFLUXDB_TOKEN = "5Ixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==")
 isettings = get_settings()
 
 #check if the InfluxDB is reachable
@@ -109,7 +111,7 @@ delete_bucket(isettings,a_random_bucket_name)
 First make sure you have the following environment variables defined:
 
 ```Julia
-ENV["INFLUXDB_HOST"]="localhost:8086"
+ENV["INFLUXDB_URL"]="http://localhost:8086"
 ENV["INFLUXDB_ORG"]="<some org>"
 ENV["INFLUXDB_TOKEN"]="5Ixxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=="
 ENV["INFLUXDB_USER"]="<admin user>"
@@ -135,4 +137,4 @@ For more information, see:
     <https://discourse.julialang.org/t/activating-test-dependencies/48121/10>
     <https://github.com/JuliaTesting/TestEnv.jl>
 
-also had to modify runtents.jl line 47 to not add "test/"
+also had to modify runtents.jl line 55 to not add "test/"

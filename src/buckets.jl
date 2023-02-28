@@ -10,8 +10,8 @@ end
 export create_bucket
 function create_bucket(isettings,bucket,content::String="")
     #https://docs.influxdata.com/influxdb/cloud/api/#operation/PostBuckets
-    @unpack INFLUXDB_HOST,INFLUXDB_TOKEN,INFLUXDB_ORG = isettings
-    
+    @unpack INFLUXDB_URL,INFLUXDB_TOKEN,INFLUXDB_ORG = isettings
+
     buckets,_ = get_buckets(isettings;limit=100,offset=0)
     if in(bucket,buckets)
         throw(ArgumentError("Bucket $bucket already exists"))
@@ -24,7 +24,7 @@ function create_bucket(isettings,bucket,content::String="")
         content = """{"name": "$bucket", "orgID": "$ORG_ID"}"""
     end
 
-    r = HTTP.request("POST", """http://$(INFLUXDB_HOST)/api/v2/buckets""", ["Authorization" => "Token $(INFLUXDB_TOKEN)", "Accept"=>"application/json","Content-Type"=>"application/json"],body=content)
+    r = HTTP.request("POST", """$(INFLUXDB_URL)/api/v2/buckets""", ["Authorization" => "Token $(INFLUXDB_TOKEN)", "Accept"=>"application/json","Content-Type"=>"application/json"],body=content)
     if !in(r.status,[201])
         @warn "Unexpected status" r.status
     end
@@ -36,7 +36,7 @@ end
 
 export delete_bucket
 function delete_bucket(isettings,bucket)
-    @unpack INFLUXDB_HOST,INFLUXDB_TOKEN = isettings
+    @unpack INFLUXDB_URL,INFLUXDB_TOKEN = isettings
     buckets,json = get_buckets(isettings;limit=100,offset=0);
     if !in(bucket,buckets)
         msg = "Unable to delete bucket $bucket as it does not exist."
@@ -45,7 +45,7 @@ function delete_bucket(isettings,bucket)
 
     BUCKET_ID = get_bucketid(json,bucket)
 
-    r = HTTP.request("DELETE", """http://$(INFLUXDB_HOST)/api/v2/buckets/$BUCKET_ID""", ["Authorization" => "Token $(INFLUXDB_TOKEN)", "Accept"=>"application/json"])
+    r = HTTP.request("DELETE", """$(INFLUXDB_URL)/api/v2/buckets/$BUCKET_ID""", ["Authorization" => "Token $(INFLUXDB_TOKEN)", "Accept"=>"application/json"])
     #if !in(r.status,[200,204])
     if !in(r.status,[204]) #api shows that 204 should be returned
         @warn "Unexpected status" r.status
@@ -70,10 +70,10 @@ end
 
 export get_buckets
 function get_buckets(isettings;limit=100,offset=0)
-    @unpack INFLUXDB_HOST,INFLUXDB_TOKEN = isettings
+    @unpack INFLUXDB_URL,INFLUXDB_TOKEN = isettings
 
-    r = HTTP.request("GET", """http://$(INFLUXDB_HOST)/api/v2/buckets?limit=$limit&offset=$offset""", ["Authorization" => "Token $(INFLUXDB_TOKEN)", "Content-Type"=>"text/plain; charset=utf-8","Accept"=>"application/json"] )
-    if r.status != 200 
+    r = HTTP.request("GET", """$(INFLUXDB_URL)/api/v2/buckets?limit=$limit&offset=$offset""", ["Authorization" => "Token $(INFLUXDB_TOKEN)", "Content-Type"=>"text/plain; charset=utf-8","Accept"=>"application/json"] )
+    if r.status != 200
         @warn "Unexpected status" r.status
     end
 
@@ -85,9 +85,9 @@ end
 
 export get_organizations
 function get_organizations(isettings;limit=100,offset=0)
-    @unpack INFLUXDB_HOST,INFLUXDB_TOKEN = isettings
+    @unpack INFLUXDB_URL,INFLUXDB_TOKEN = isettings
 
-    r = HTTP.request("GET", """http://$(INFLUXDB_HOST)/api/v2/orgs?limit=$limit&offset=$offset""", ["Authorization" => "Token $(INFLUXDB_TOKEN)", "Content-Type"=>"text/plain; charset=utf-8","Accept"=>"application/json"] )
+    r = HTTP.request("GET", """$(INFLUXDB_URL)/api/v2/orgs?limit=$limit&offset=$offset""", ["Authorization" => "Token $(INFLUXDB_TOKEN)", "Content-Type"=>"text/plain; charset=utf-8","Accept"=>"application/json"] )
     if r.status != 200
         @warn "Unexpected status" r.status
     end
@@ -114,8 +114,8 @@ end
 #=
 export get_buckets_curl
 function get_buckets_curl(isettings;limit=100,offset=0)
-    @unpack INFLUXDB_HOST,INFLUXDB_TOKEN = isettings
-    cmd = `curl -s --request GET "http://$(INFLUXDB_HOST)/api/v2/buckets?limit=$limit&offset=$offset" --header "Authorization: Token $(INFLUXDB_TOKEN)" --header "Content-Type: text/plain; charset=utf-8" --header "Accept: application/json"`
+    @unpack INFLUXDB_URL,INFLUXDB_TOKEN = isettings
+    cmd = `curl -s --request GET "$(INFLUXDB_URL)/api/v2/buckets?limit=$limit&offset=$offset" --header "Authorization: Token $(INFLUXDB_TOKEN)" --header "Content-Type: text/plain; charset=utf-8" --header "Accept: application/json"`
     rs = read(cmd, String)
     json = JSON3.read(rs)
     bucket_names = map(x->x.name,json.buckets)

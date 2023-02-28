@@ -44,7 +44,7 @@ function write_data(isettings,bucket::String,payload::Union{String,Vector{UInt8}
                 airSensors,sensor_id=TLM0202 temperature=72.30007505999716,humidity=30.651929918691714,co=0.6141876544505826 1630424259000000000"""
     =#
 
-    @unpack INFLUXDB_HOST,INFLUXDB_TOKEN,INFLUXDB_ORG = isettings
+    @unpack INFLUXDB_URL,INFLUXDB_TOKEN,INFLUXDB_ORG = isettings
         
     if !bucket_exists(isettings,bucket)
         throw(ArgumentError("Bucket $bucket does  not exist"))
@@ -61,7 +61,7 @@ function write_data(isettings,bucket::String,payload::Union{String,Vector{UInt8}
     
     #To send a line protocol payload, pass Content-Type: text/plain; charset=utf-8.    
     hdrs = Dict("Authorization" => "Token $(INFLUXDB_TOKEN)", "Accept"=>"application/json","Content-Type"=>"application/json; charset=utf-8")
-    url = """http://$(INFLUXDB_HOST)/api/v2/write?org=$INFLUXDB_ORG&bucket=$bucket&precision=$influx_precision"""
+    url = """$(INFLUXDB_URL)/api/v2/write?org=$INFLUXDB_ORG&bucket=$bucket&precision=$influx_precision"""
     #@show typeof(payload)
     if compress
         #gzip

@@ -25,33 +25,37 @@ end
 @test length(a_random_bucket_name) > 0
 
 #smoketest 1 to see if DB is up
-#a get request to """http://$(INFLUXDB_HOST)/metrics""" is another possibility to check if the server is up
+#a get request to """$(INFLUXDB_URL)/metrics""" is another possibility to check if the server is up
 try 
-    metrics_url = """http://$(isettings["INFLUXDB_HOST"])/metrics"""
+    metrics_url = """$(isettings["INFLUXDB_URL"])/metrics"""
     @info("Trying to query $(metrics_url)...")
     r = HTTP.request("GET", metrics_url,status_exception = false)
     #maybe status is 200 when metrics are ENABLED and status is 403 when metrics are DISABLED
     @test in(r.status,[200,403])
     @info("Status is $(r.status)")
-    @info("Body is $(String(r.body))")
+    strbdy = String(r.body)
+    if length(strbdy) < 200
+        @info("Body is $(String(r.body))")
+    end
 catch er
-    @warn("failed to query: http://$(isettings["INFLUXDB_HOST"])/metrics")
+    @warn("failed to query: $(isettings["INFLUXDB_URL"])/metrics")
     @show er
 end
 
 #smoketest 2 to see if DB is up
 #https://docs.influxdata.com/influxdb/v2.4/write-data/developer-tools/api/
-bucket_names,json = try
-    try
-        get_buckets(isettings); #1.7 ms btime, (influxdb host is on a different machine)
-    catch er
-        @show er
-    end
-catch
-    "","";
-end;
-@test length(bucket_names) > 0
-@show bucket_names
+bucket_names = ""
+json = ""
+try
+    global bucket_names, json = get_buckets(isettings); #1.7 ms btime, (influxdb host is on a different machine)
+    @test length(bucket_names) > 0
+    @show bucket_names
+catch er
+    @warn("failed to get list of buckets. InfluxDB may not be reachable.")
+    @show er
+    global bucket_names = "" 
+    global json = ""
+end
 prefix = ifelse(isinteractive() , "test/", "")
 include(string(prefix,"functions.jl"))
 

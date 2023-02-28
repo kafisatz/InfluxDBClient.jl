@@ -20,7 +20,7 @@
     
     lp = lineprotocol("my_meas",df,["temperature","an_int_value","abool","humidity"],tags=["color","sensor_id"], :datetime);
     @time write_data(isettings,a_random_bucket_name,lp,"ns")
-    @test length(findall('\n',lp)) == nn - 1 #only works if data has no \n
+    @test length(findall("\n",lp)) == nn - 1 #only works if data has no \n
     
     ########################################################################
     #batch processing data

@@ -33,7 +33,7 @@
     for measurement in measurements
         fields = query_measurement_field_keys(isettings, a_random_bucket_name, measurement)
         #on my local machine this vector is empty, not sure why
-        @warn("may need to improve this")
+        @warn("may need to improve this test")
         @show fields
         println("$measurement : $(join(fields, ", "))")
     end
