@@ -1,7 +1,7 @@
 export get_settings
 function get_settings(;org::String="",token::String="",url::String="",host::String="",user::String="",password::String="",file::String="") #,bucket::String="")
 
-    #maybe add an option to use something along ~/.influxdbconfig ? 
+    #maybe add an option to use something along ~/.influxdbconfig? 
     if length(file)>0
         settings_from_file = get_settings_from_file(;file=file)
         return _update_setting_keys(settings_from_file)
