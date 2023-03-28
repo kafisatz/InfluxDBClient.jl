@@ -161,7 +161,7 @@ export escape_special_chars
 escape_special_chars(v::T) where {T<:AbstractFloat} = v
 escape_special_chars(v::T) where {T<:Signed} = v
 escape_special_chars(v::T) where {T<:Unsigned} = v
-escape_special_chars(v::T) where {T<:Number} = v
+escape_special_chars(v::T) where {T<:Number} = v #? possibly needs to be improved
 escape_special_chars(s::AbstractString) = replace(s, r"([ ,=])" => s"\\\1")
 escape_special_chars(s::Symbol) = Symbol(replace(string(s), r"([ ,=])" => s"\\\1"))
 
