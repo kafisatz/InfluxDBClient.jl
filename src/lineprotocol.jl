@@ -158,6 +158,10 @@ end
 #const chars_that_need_to_be_quoted_in_influx = [' ', ',', '=']
 ##If a tag key, tag value, or field key contains a space , comma ,, or an equals sign = it must be escaped using the backslash character \
 export escape_special_chars 
+escape_special_chars(v::T) where {T<:AbstractFloat} = v
+escape_special_chars(v::T) where {T<:Signed} = v
+escape_special_chars(v::T) where {T<:Unsigned} = v
+escape_special_chars(v::T) where {T<:Number} = v
 escape_special_chars(s::AbstractString) = replace(s, r"([ ,=])" => s"\\\1")
 escape_special_chars(s::Symbol) = Symbol(replace(string(s), r"([ ,=])" => s"\\\1"))
 

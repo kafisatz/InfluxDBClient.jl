@@ -137,9 +137,7 @@ for gzip_compression_is_enabled in [false,true]
     df = query_flux_postprocess_response(bdy,false,"ns",InfluxDBClient.utc_tz)
     @test size(df,1) == 3
 
-    #df2 = query_flux(isettings,a_random_bucket_name,"airSensors";range=Dict("start"=>"$datetime_str"),fields=["temperature","humidity"],tags=Dict("color"=>"blue"),aggregate=agg);
-   
-
+    #df2 = query_flux(isettings,a_random_bucket_name,"airSensors";range=Dict("start"=>"$datetime_str"),fields=["temperature","humidity"],tags=Dict("color"=>"blue"),aggregate=agg);   
     #invalid payload type
     @test_throws MethodError write_data(isettings,a_random_bucket_name,Int[1,3,5],"ms",compress=gzip_compression_is_enabled)
 
