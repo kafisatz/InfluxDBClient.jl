@@ -118,8 +118,10 @@ end
 export create_lp
 function create_lp(rw::DataFrameRow,measurement,timestamp,fields,tagsSymbols,influx_precision,shift_datetime_to_utc)
     #measurementName,tagKey=tagValue fieldKey="fieldValue" 1465839830100400200
-    #tagsSymbols 
-    tstr = join(map(t->string(t,"=",rw[t]),tagsSymbols),",")
+    #tagsSymbols, escaping both keys and values for tags
+    tstr = join(map(t->string(t,"=",escape_special_chars(rw[t])),escape_special_chars.(tagsSymbols)),",")
+
+        ##If a tag key, tag value, or field key contains a space , comma ,, or an equals sign = it must be escaped using the backslash character \
 
     #fields
     #Always double quote string field values. More on quotes below.
@@ -127,12 +129,13 @@ function create_lp(rw::DataFrameRow,measurement,timestamp,fields,tagsSymbols,inf
     #myMeasurement fieldKey=12485903u unsigned INT
 
     #fstr = join(map(t->string(t,"=",rw[t]),fields),",")
+    #escaping only keys for fields
     if any(ismissing,rw)
         #NOTE: we skip columns where the data is missing!
-        fstr = join(map(t->string(t,"=",lp_formatted_field_value(rw[t])),Iterators.filter(f->!ismissing(rw[f]),fields)),",")
+        fstr = join(map(t->string(t,"=",lp_formatted_field_value(rw[t])),Iterators.filter(f->!ismissing(rw[f]),escape_special_chars.(fields))),",")
         #fstr = join(map(t->string(t,"=",lp_formatted_field_value(rw[t])),filter(f->!ismissing(rw[f]),fields)),",")
     else 
-        fstr = join(map(t->string(t,"=",lp_formatted_field_value(rw[t])),fields),",")
+        fstr = join(map(t->string(t,"=",lp_formatted_field_value(rw[t])),escape_special_chars.(fields)),",")
     end
     #timestamp
     ts = get_milliseconds(shift_datetime_to_utc(rw[timestamp]))
@@ -151,6 +154,12 @@ function create_lp(rw::DataFrameRow,measurement,timestamp,fields,tagsSymbols,inf
     
     return lpstr
 end
+
+#const chars_that_need_to_be_quoted_in_influx = [' ', ',', '=']
+##If a tag key, tag value, or field key contains a space , comma ,, or an equals sign = it must be escaped using the backslash character \
+export escape_special_chars 
+escape_special_chars(s::AbstractString) = replace(s, r"([ ,=])" => s"\\\1")
+escape_special_chars(s::Symbol) = Symbol(replace(string(s), r"([ ,=])" => s"\\\1"))
 
 #export lp_formatted_field_value
 lp_formatted_field_value(v::T) where {T<:AbstractFloat} = v

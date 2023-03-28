@@ -71,7 +71,27 @@
     bs = 5_000
     df = generate_data(3 * bs)
     @time rs,lp = write_dataframe(settings=isettings,bucket=a_random_bucket_name,measurement="some_measurement",data=df,fields=["temperature","an_int_value","abool","humidity"],timestamp=:datetime,tags=["color","sensor_id"],influx_precision="s",tzstr="Europe/Berlin",compress=true,batchsize = bs,printinfo=false);
+    rs
     #@time rs,lp = write_dataframe(settings=isettings,bucket=a_random_bucket_name,measurement="some_measurement",data=df,fields=["temperature","an_int_value","abool","humidity"],timestamp=:datetime,tags=["color","sensor_id"],influx_precision="s",tzstr="Europe/Berlin",compress=false,batchsize = bs,printinfo=false);
 
+
+########################################################################
+#If a tag key, tag value, or field key contains a space , comma ,, or an equals sign = it must be escaped using the backslash character \. Backslash characters do not need to be escaped. Commas , and spaces will also need to be escaped for measurements, though equals signs = do not.
+########################################################################
+    #If a tag key, tag value, or field key 
+    bs = 3
+    df = generate_data(1 * bs)
+    chars_that_need_to_be_quoted_in_influx = [' ', ',', '=']
+    for c in chars_that_need_to_be_quoted_in_influx
+        dfmod = deepcopy(df)
+        dfmod.color = dfmod.color .* string(c) .*dfmod.color
+
+        @time rs,lp = write_dataframe(settings=isettings,bucket=a_random_bucket_name,measurement="some_measurement",data=dfmod,fields=["temperature","an_int_value","abool","humidity"],timestamp=:datetime,tags=["color","sensor_id"],influx_precision="s",tzstr="Europe/Berlin",compress=true,batchsize = bs,printinfo=false);
+        #@edit write_dataframe(settings=isettings,bucket=a_random_bucket_name,measurement="some_measurement",data=df,fields=["temperature","an_int_value","abool","humidity"],timestamp=:datetime,tags=["color","sensor_id"],influx_precision="s",tzstr="Europe/Berlin",compress=true,batchsize = bs,printinfo=false);
+        @test rs == 204
+
+        #rename!(dfmod,:color=>:color2)
+    end
+    
     delete_bucket(isettings,a_random_bucket_name);
 end

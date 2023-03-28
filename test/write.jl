@@ -25,6 +25,37 @@ for gzip_compression_is_enabled in [false,true]
     rs = write_data(isettings,a_random_bucket_name,payload,"ns",compress=gzip_compression_is_enabled)
     @test rs == 204
 
+    ############################################################################################################
+    #test with tags which contain a space
+    ############################################################################################################
+    payload = """myMeasurement,tag1=val ue1,tag2=value2 fieldKey="fieldValue" 1556813561098000000"""
+    #here we forgot to quote the tag1
+    #-> we expect HTTP error code 400
+    @test_throws HTTP.Exceptions.StatusError write_data(isettings,a_random_bucket_name,payload,"ns",compress=gzip_compression_is_enabled)
+
+    payload = """myMeasurement,tag1="value1",tag2="value2" fieldKey="fieldValue" 1556813561098000000"""
+    rs = write_data(isettings,a_random_bucket_name,payload,"ns",compress=gzip_compression_is_enabled)
+    @test rs == 204
+    
+    #from the docs
+    #If a tag key, tag value, or field key contains a space , comma ,, or an equals sign = it must be escaped using the backslash character \. Backslash characters do not need to be escaped. Commas , and spaces will also need to be escaped for measurements, though equals signs = do not.
+
+    #whitespace
+    payload = """myMeasurement,tag1="valu\\ e1",tag2="value2" fieldKey="fieldValue" 1556813561098000000"""
+    rs = write_data(isettings,a_random_bucket_name,payload,"ns",compress=gzip_compression_is_enabled)
+    @test rs == 204
+
+    #comma
+    payload = """myMeasurement,tag1="val\\,ue1",tag2="value2" fieldKey="fieldValue" 1556813561098000000"""
+    rs = write_data(isettings,a_random_bucket_name,payload,"ns",compress=gzip_compression_is_enabled)
+    @test rs == 204
+
+    #equal sign =
+    payload = """myMeasurement,tag1="val\\=ue1",tag2="value2" fieldKey="fieldValue" 1556813561098000000"""
+    rs = write_data(isettings,a_random_bucket_name,payload,"ns",compress=gzip_compression_is_enabled)
+    @test rs == 204
+
+    ############################################################################################################
     #passing wrong influx_precision (second, us, ms) as influx_precision will fail
     payload = """myMeasurement,tag1=value1,tag2=value2 fieldKey="fieldValue" 1556813561098000000"""
     @test_throws HTTP.Exceptions.StatusError write_data(isettings,a_random_bucket_name,payload,"s",compress=gzip_compression_is_enabled)
