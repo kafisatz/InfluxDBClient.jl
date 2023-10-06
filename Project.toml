@@ -14,9 +14,6 @@ Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 TimeZones = "f269a46b-ccf7-5d73-abea-4c690281aa53"
 UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
 
-[compat]
-julia >= "1.6"
-
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
