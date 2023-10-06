@@ -22,6 +22,7 @@ DataFrames = "1.5"
 HTTP = "1.7"
 TimeZones = "1.9"
 UnPack = "1.0"
+JSON3  = "1.12"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
