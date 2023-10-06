@@ -1,7 +1,7 @@
 name = "InfluxDBClient"
 uuid = "7a087161-7d97-4627-bbdd-0c82161d9408"
 authors = ["bernhard.koenig", "marius.kruger"]
-version = "0.0.7"
+version = "0.0.8"
 
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
@@ -15,7 +15,7 @@ TimeZones = "f269a46b-ccf7-5d73-abea-4c690281aa53"
 UnPack = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
 
 [compat]
-julia = "1.6"
+julia >= "1.6"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
