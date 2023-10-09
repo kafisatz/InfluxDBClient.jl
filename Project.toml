@@ -1,7 +1,7 @@
 name = "InfluxDBClient"
 uuid = "7a087161-7d97-4627-bbdd-0c82161d9408"
 authors = ["bernhard.koenig", "marius.kruger"]
-version = "0.1.2"
+version = "0.1.3"
 
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"

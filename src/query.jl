@@ -73,7 +73,7 @@ function query_flux_postprocess_response(bdy,parse_datetime,datetime_precision,t
                 if idx > length(DATETIME_LENGTHS)
                     throw(ArgumentError("Unexpected string length ($(ln)) for column _time"))
                 end 
-                precision_of_data = PRECISION_DATETIME_LENGTH[ln]
+                precision_of_data = PRECISION_DATETIME_LENGTH[DATETIME_LENGTHS[idx]] #this row needs review and probably additional testing
             else 
                 precision_of_data = PRECISION_DATETIME_LENGTH[ln]    
             end
