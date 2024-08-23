@@ -93,7 +93,7 @@ rs,lp = write_dataframe(settings=isettings,bucket=a_random_bucket_name,measureme
 
 #querying 
 #note that the agg keyword is optional
-#consider calls in runtests.jl for more exmaples (i.e. search this repository for "query_flux(")
+#consider calls in runtests.jl for more examples (i.e. search this repository for "query_flux(")
 agg = """   aggregateWindow(every: 20m, fn: mean, createEmpty: false)
                 |> yield(name: "mean") """    
 datetime_str = string(minimum(df.datetime),"+02:00")
