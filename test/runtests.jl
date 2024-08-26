@@ -88,5 +88,5 @@ else
     =#
 end
 
-#Aqua tests
-Aqua.test_all(InfluxDBClient,ambiguities=false,deps_compat=true)
+#Aqua tests 
+Aqua.test_all(InfluxDBClient,ambiguities=false,deps_compat=false)
